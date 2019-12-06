@@ -112,12 +112,20 @@ class QuantumState:
     def get_valid_transitions_n_to_n(self, n, n_prime):
         pass
 
+    def __repr__(self):
+        this_repr = f"n: {self._n} \n" \
+                    f"ell: {self._ell} \n" \
+                    f"m_ell: {self._m_ell} \n" \
+                    f"s: {self._s} \n" \
+                    f"m_s: {self._m_s}"
+        return this_repr
+
 
 if __name__ == '__main__':
-    # quantum_state = QuantumState(n=1, ell=0, m_ell=0, s=1 / 2, m_s=1 / 2)
-    # print(quantum_state.getState())
-    # print(quantum_state.able_to_translate(QuantumState(2, 0, 1 / 2, 1 / 2, 1 / 2)))
-    # print(quantum_state.able_to_translate(QuantumState(2, 1, 1 / 2, 1 / 2, 1 / 2)))
+    quantum_state = QuantumState(n=1, ell=0, m_ell=0, s=1 / 2, m_s=1 / 2)
+    print(quantum_state.getState())
+    print(quantum_state.able_to_translate(QuantumState(2, 0, 1 / 2, 1 / 2, 1 / 2)))
+    print(quantum_state.able_to_translate(QuantumState(2, 1, 1 / 2, 1 / 2, 1 / 2)))
 
     valid_transitions_test_1_to_2 = [QuantumState(2, 1, -1, 1/2, 1/2),
                                      QuantumState(2, 1, 0, 1/2, 1/2),
