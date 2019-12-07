@@ -31,10 +31,14 @@ class Transition:
         psi_prime = self._ending_quantum_state.get_wave_fonction()
 
         bracket_product = sp.integrate((r**2)*sp.sin(theta)*sp.conjugate(psi)*r*psi_prime,
-                                       (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).evalf()
+                                       (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).evalf(20)
         # print(bracket_product)
         bracket_product_norm_square = (sp.conjugate(bracket_product)*bracket_product).evalf()
         return sp.Float(coeff*bracket_product_norm_square)
+
+    def get_angular_frequency(self):
+        delta_e = self._initial_quantum_state.get_state_energy() - self._ending_quantum_state.get_state_energy()
+        return delta_e/const.hbar
 
     @staticmethod
     def possible(initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
