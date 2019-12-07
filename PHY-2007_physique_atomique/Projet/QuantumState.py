@@ -156,7 +156,7 @@ class QuantumState:
         """
         this_repr = f"(n: {self._n}, " \
                     f"ell: {self._ell}, " \
-                    f"m_ell: {self._m_ell}, "
+                    f"m_ell: {self._m_ell})"
         return this_repr
 
     def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
