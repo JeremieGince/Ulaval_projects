@@ -155,8 +155,7 @@ class QuantumState:
         :param mu:
         :return: sympy object
         """
-        theta, phi = sp.Symbol("theta"), sp.Symbol("phi")  # must be reel
-        r = sp.Symbol("r")
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         y_ell_m_ell = sp.Ynm(self._ell, self._m_ell, theta, phi)
 
         coeff = np.sqrt((((2*z*const.alpha*mu*const.c)
