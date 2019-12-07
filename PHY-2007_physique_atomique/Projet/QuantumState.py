@@ -6,7 +6,15 @@ import numba
 
 class QuantumState:
 
-    def __init__(self, n, ell, m_ell, s, m_s):
+    def __init__(self, n: int, ell: int, m_ell: float, s: float, m_s: float):
+        """
+        QuantumState constructor
+        :param n: orbital number (int)
+        :param ell: angular momentum (int)
+        :param m_ell: (float)
+        :param s: spin (float)
+        :param m_s: (float)
+        """
         self._n = n
         self._ell = ell
         self._m_ell = m_ell
@@ -14,24 +22,22 @@ class QuantumState:
         self._m_s = m_s
         self.check_invariants()
 
-    def check_invariants(self, assertion: bool = True) -> bool:
-        check = True
-        if not (self._n >= 1):
-            check = False
-        if not (0 <= self._ell < self._n):
-            check = False
-        if not (-self._ell <= self._m_ell <= self._ell):
-            check = False
-        if not (self._s >= 0.0):
-            check = False
-        if not (-self._s <= self._m_s <= self._s):
-            check = False
+    def check_invariants(self) -> None:
+        """
+        Check every invariant for a quantum state
+        :return: None
+        """
+        assert self._n >= 1
+        assert 0 <= self._ell < self._n
+        assert -self._ell <= self._m_ell <= self._ell
+        assert self._s >= 0.0
+        assert -self._s <= self._m_s <= self._s
 
-        if assertion and not check:
-            raise AssertionError(f"{self}")
-        return check
-
-    def getState(self):
+    def getState(self) -> np.ndarray:
+        """
+        Getter of the state vector of state numbers in order (n, ell, m_ell, s, m_s)
+        :return: [n, ell, m_ell, s, m_s] (numpy.ndarray)
+        """
         return np.array([self._n, self._ell, self._m_ell, self._s, self._m_s])
 
     def get_n(self):
@@ -137,10 +143,10 @@ class QuantumState:
                             valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
         return valid_transitions
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         show a representation of the current quantum state
-        :return:
+        :return: string representation of self (str)
         """
         this_repr = f"(n: {self._n}, " \
                     f"ell: {self._ell}, " \
@@ -149,10 +155,10 @@ class QuantumState:
                     f"m_s: {self._m_s})"
         return this_repr
 
-    def repr_without_spin(self):
+    def repr_without_spin(self) -> str:
         """
         show a representation of the current quantum state without s and m_s
-        :return:
+        :return: string representation of self without orbital spin (str)
         """
         this_repr = f"(n: {self._n}, " \
                     f"ell: {self._ell}, " \
