@@ -15,22 +15,35 @@ class Transition:
     n_ell_m_ell_state_to_rs = dict()
 
     def __init__(self, initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
+        """
+        Transition constructor
+        :param initial_quantum_state: initial quantum state (QuantumState)
+        :param ending_quantum_state: final quantum state (QuantumState)
+        """
         self._initial_quantum_state = initial_quantum_state
         self._ending_quantum_state = ending_quantum_state
         self.check_invariant()
         self.spontaniuous_decay_rate = None
 
-    def check_invariant(self):
+    def check_invariant(self) -> None:
+        """
+        Check every invariant for a Transition
+        :return: None
+        """
         assert Transition.possible(self._initial_quantum_state, self._ending_quantum_state)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        show a representation of the current Transition
+        :return: string representation of self (str)
+        """
         this_repr = f"({self._initial_quantum_state} -> {self._ending_quantum_state})"
         return this_repr
 
-    def repr_without_spin(self):
+    def repr_without_spin(self) -> str:
         """
-        show a representation of the current quantum state without s and m_s
-        :return:
+        show a representation of the current Transition without s and m_s
+        :return: string representation of self without orbital spin (str)
         """
         this_repr = f"({self._initial_quantum_state.repr_without_spin()} " \
                     f"-> {self._ending_quantum_state.repr_without_spin()})"
@@ -69,31 +82,50 @@ class Transition:
         return self.spontaniuous_decay_rate
 
     def get_delta_energy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Getter of the transition energy without any pertubation
+        :param z:
+        :param mu:
+        :return: transition energy (float) or transition energy (sympy object)
+        """
         return self._initial_quantum_state.get_state_energy(z, mu) - self._ending_quantum_state.get_state_energy(z, mu)
 
     def get_angular_frequency(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Getter of the transition angular frequency without any pertubation
+        :param z:
+        :param mu:
+        :return: angular frequency (float) or angular frequency (sympy object)
+        """
         return self.get_delta_energy(z, mu)/const.hbar
 
     @staticmethod
-    def possible(initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
+    def possible(initial_quantum_state: QuantumState, ending_quantum_state: QuantumState) -> bool:
+        """
+        Check if the transition is possible with every transition rule selection
+        :param initial_quantum_state: initial quantum state (QuantumState)
+        :param ending_quantum_state: final quantum state (QuantumState)
+        :return: a boolean representation of the capability of the transition (bool)
+        """
         able = True
 
         if initial_quantum_state.get_n() == ending_quantum_state.get_n():
             able = False
 
-        if (initial_quantum_state.get_ell() - ending_quantum_state.get_ell()) not in Transition.TRANSITIONS_RULES[
-            "Delta ell"]:
+        if (initial_quantum_state.get_ell() - ending_quantum_state.get_ell()) \
+                not in Transition.TRANSITIONS_RULES["Delta ell"]:
             able = False
 
-        if (initial_quantum_state.get_m_ell() - ending_quantum_state.get_m_ell()) not in Transition.TRANSITIONS_RULES[
-            "Delta m_ell"]:
+        if (initial_quantum_state.get_m_ell() - ending_quantum_state.get_m_ell()) \
+                not in Transition.TRANSITIONS_RULES["Delta m_ell"]:
             able = False
 
-        if (initial_quantum_state.get_s() - ending_quantum_state.get_s()) not in Transition.TRANSITIONS_RULES["Delta s"]:
+        if (initial_quantum_state.get_s() - ending_quantum_state.get_s()) \
+                not in Transition.TRANSITIONS_RULES["Delta s"]:
             able = False
 
-        if (initial_quantum_state.get_m_s() - ending_quantum_state.get_m_s()) not in Transition.TRANSITIONS_RULES[
-            "Delta m_s"]:
+        if (initial_quantum_state.get_m_s() - ending_quantum_state.get_m_s()) \
+                not in Transition.TRANSITIONS_RULES["Delta m_s"]:
             able = False
 
         return able
