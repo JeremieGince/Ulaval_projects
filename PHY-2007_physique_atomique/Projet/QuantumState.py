@@ -69,9 +69,9 @@ class QuantumState:
         from Transition import Transition
         valid_transitions = list()
         next_states = set()
-        for key, possibilities in Transition.transition_rules.items():
+        for key, possibilities in Transition.TRANSITIONS_RULES.items():
             for num in possibilities:
-                for key_prime, possibilities_prime in Transition.transition_rules.items():
+                for key_prime, possibilities_prime in Transition.TRANSITIONS_RULES.items():
                     if key == key_prime:
                         continue
                     for num_prime in possibilities_prime:
@@ -147,6 +147,16 @@ class QuantumState:
                     f"m_ell: {self._m_ell}, " \
                     f"s: {self._s}, " \
                     f"m_s: {self._m_s})"
+        return this_repr
+
+    def repr_without_spin(self):
+        """
+        show a representation of the current quantum state without s and m_s
+        :return:
+        """
+        this_repr = f"(n: {self._n}, " \
+                    f"ell: {self._ell}, " \
+                    f"m_ell: {self._m_ell}, "
         return this_repr
 
     def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
