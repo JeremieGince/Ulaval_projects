@@ -7,10 +7,12 @@ from numba import cuda
 
 
 class Transition:
-    transition_rules = {"Delta ell": [-1, 1],
-                        "Delta m_ell": [-1, 0, 1],
-                        "Delta s": [0],
-                        "Delta m_s": [0]}
+    TRANSITIONS_RULES = {"Delta ell": [-1, 1],
+                         "Delta m_ell": [-1, 0, 1],
+                         "Delta s": [0],
+                         "Delta m_s": [0]}
+
+    n_ell_m_ell_state_to_rs = dict()
 
     def __init__(self, initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
         self._initial_quantum_state = initial_quantum_state
@@ -25,9 +27,22 @@ class Transition:
         this_repr = f"({self._initial_quantum_state} -> {self._ending_quantum_state})"
         return this_repr
 
+    def repr_without_spin(self):
+        """
+        show a representation of the current quantum state without s and m_s
+        :return:
+        """
+        this_repr = f"({self._initial_quantum_state.repr_without_spin()} " \
+                    f"-> {self._ending_quantum_state.repr_without_spin()})"
+        return this_repr
+
     @numba.jit(parallel=True)
     def get_spontaniuous_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         if self.spontaniuous_decay_rate is not None:
+            return self.spontaniuous_decay_rate
+        elif self.repr_without_spin() in Transition.n_ell_m_ell_state_to_rs.keys():
+            self.spontaniuous_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
+            print(Transition.n_ell_m_ell_state_to_rs)
             return self.spontaniuous_decay_rate
 
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
@@ -38,28 +53,24 @@ class Transition:
 
         integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
 
-        print(integral_core)
-
-        normalized_coeff = 1
-
+        # print(integral_core)
         bracket_product = sp.Integral(sp.FU['TR0'](integral_core.simplify()),
                                       (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).doit()
-        # bracket_product = sp.Integral(sp.FU['TR0'](integral_core.simplify()), (phi, 0, 2 * sp.pi)).as_sum().n()
-        # bracket_product = sp.Integral(bracket_product, (theta, 0, sp.pi)).as_sum()
-        # bracket_product = sp.Integral(bracket_product, (r, 0, sp.oo)).as_sum()
 
-        print((bracket_product/normalized_coeff))
-        bracket_product = sp.FU['TR0'](bracket_product/normalized_coeff).evalf(20)
-        print(bracket_product)
-        # bracket_product_norm_square = (sp.conjugate(bracket_product)*bracket_product).evalf()
+        # print((bracket_product/normalized_coeff))
+        bracket_product = sp.FU['TR0'](bracket_product).evalf(20)
+        # print(bracket_product)
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
-        print(bracket_product_norm_square)
-        self.spontaniuous_decay_rate = sp.Float(coeff*bracket_product_norm_square)*normalized_coeff
-        return self.get_spontaniuous_decay_rate
+        # print(bracket_product_norm_square)
+        self.spontaniuous_decay_rate = sp.Float(coeff*bracket_product_norm_square)
+        Transition.n_ell_m_ell_state_to_rs[self.get_delta_energy(z, mu)] = self.spontaniuous_decay_rate
+        return self.spontaniuous_decay_rate
 
-    def get_angular_frequency(self):
-        delta_e = self._initial_quantum_state.get_state_energy() - self._ending_quantum_state.get_state_energy()
-        return delta_e/const.hbar
+    def get_delta_energy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        return self._initial_quantum_state.get_state_energy(z, mu) - self._ending_quantum_state.get_state_energy(z, mu)
+
+    def get_angular_frequency(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        return self.get_delta_energy(z, mu)/const.hbar
 
     @staticmethod
     def possible(initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
@@ -68,18 +79,18 @@ class Transition:
         if initial_quantum_state.get_n() == ending_quantum_state.get_n():
             able = False
 
-        if (initial_quantum_state.get_ell() - ending_quantum_state.get_ell()) not in Transition.transition_rules[
+        if (initial_quantum_state.get_ell() - ending_quantum_state.get_ell()) not in Transition.TRANSITIONS_RULES[
             "Delta ell"]:
             able = False
 
-        if (initial_quantum_state.get_m_ell() - ending_quantum_state.get_m_ell()) not in Transition.transition_rules[
+        if (initial_quantum_state.get_m_ell() - ending_quantum_state.get_m_ell()) not in Transition.TRANSITIONS_RULES[
             "Delta m_ell"]:
             able = False
 
-        if (initial_quantum_state.get_s() - ending_quantum_state.get_s()) not in Transition.transition_rules["Delta s"]:
+        if (initial_quantum_state.get_s() - ending_quantum_state.get_s()) not in Transition.TRANSITIONS_RULES["Delta s"]:
             able = False
 
-        if (initial_quantum_state.get_m_s() - ending_quantum_state.get_m_s()) not in Transition.transition_rules[
+        if (initial_quantum_state.get_m_s() - ending_quantum_state.get_m_s()) not in Transition.TRANSITIONS_RULES[
             "Delta m_s"]:
             able = False
 
