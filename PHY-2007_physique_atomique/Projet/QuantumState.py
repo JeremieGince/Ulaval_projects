@@ -1,6 +1,7 @@
 import numpy as np
 import Constantes as const
 import sympy as sp
+import numba
 
 
 class QuantumState:
@@ -48,12 +49,12 @@ class QuantumState:
     def get_m_s(self):
         return self._m_s
 
-    def get_state_energy(self, z=1, mu=const.mu0) -> float:
+    def get_state_energy(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the energy of the current quantum state
         :param z: electric charge
         :param mu:
-        :return: the energy of the current quantum state (float)
+        :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
         numerator = - (z**2)*(const.alpha**2)*mu*(const.c**2)
         denumerator = 2*(self._n**2)
@@ -148,7 +149,7 @@ class QuantumState:
                     f"m_s: {self._m_s})"
         return this_repr
 
-    def get_wave_fonction(self, z=1, mu=const.mu0):
+    def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the wave function of the current quantum state as a sympy object
         :param z: electric charge
@@ -156,15 +157,13 @@ class QuantumState:
         :return: sympy object
         """
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        # Mettre mu, Z, c et alpha en symbol sympy
         y_ell_m_ell = sp.Ynm(self._ell, self._m_ell, theta, phi)
 
-        coeff = np.sqrt((((2*z*const.alpha*mu*const.c)
+        coeff = sp.sqrt((((2*z*const.alpha*mu*const.c)
                           /(self._n*const.hbar))**3)*(np.math.factorial(self._n-self._ell-1)
                                                       /(2*self._n*np.math.factorial(self._n-self._ell))))
         xi_n = (2*z*const.alpha*mu*const.c*r)/(self._n*const.hbar)
-        u_n_ell = coeff*sp.exp(-xi_n/2)*(xi_n**self._ell)*sp.assoc_laguerre(self._n-self._ell-1,
-                                                                            2*self._ell+1, xi_n)
+        u_n_ell = coeff*sp.exp(-xi_n/2)*(xi_n**self._ell)*sp.assoc_laguerre(self._n-self._ell-1, 2*self._ell+1, xi_n)
 
         psi_n_ell_m_ell = u_n_ell*y_ell_m_ell
         return psi_n_ell_m_ell
@@ -173,7 +172,8 @@ class QuantumState:
 if __name__ == '__main__':
     from Transition import Transition
     quantum_state = QuantumState(n=1, ell=0, m_ell=0, s=1 / 2, m_s=1 / 2)
-    print(quantum_state.getState())
+    print(f"psi_{quantum_state} = {quantum_state.get_wave_fonction()}")
+    print(f"E_{quantum_state} = {quantum_state.get_state_energy()}")
     print(Transition.possible(quantum_state, QuantumState(2, 0, 0, 1 / 2, 1 / 2)))
     print(Transition.possible(quantum_state, QuantumState(2, 1, 1/2, 1/2, 1 / 2)))
 
