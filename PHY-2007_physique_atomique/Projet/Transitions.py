@@ -20,13 +20,13 @@ class Transitions(list):
         for trans in QuantumState.get_valid_transitions_n_to_n(n, n_prime):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self, z=const.ZH, mu=const.mu0):
+    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu0):
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
         # rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
         rs_vector = list()
         for trans in tqdm.tqdm(self):
-            rs = trans.get_spontaniuous_decay_rate(z=z, mu=mu)
+            rs = trans.get_spontanious_decay_rate(z=z, mu=mu)
             rs_vector.append(rs)
         rs_vector = np.array(rs_vector)
         print(rs_vector)
