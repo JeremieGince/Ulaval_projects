@@ -23,7 +23,12 @@ class Transitions(list):
     def get_spontanious_decay_mean(self, z=const.ZH, mu=const.mu0):
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
-        rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+        # rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+        rs_vector = list()
+        for trans in tqdm.tqdm(self):
+            rs = trans.get_spontaniuous_decay_rate(z=z, mu=mu)
+            rs_vector.append(rs)
+        rs_vector = np.array(rs_vector)
         print(rs_vector)
         self.spontanious_decay_mean = np.mean(rs_vector)
         return self.spontanious_decay_mean
