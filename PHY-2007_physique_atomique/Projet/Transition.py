@@ -30,7 +30,9 @@ class Transition:
         psi = self._initial_quantum_state.get_wave_fonction()
         psi_prime = self._ending_quantum_state.get_wave_fonction()
 
-        bracket_product = sp.integrate((r**2)*sp.sin(theta)*sp.conjugate(psi)*r*psi_prime,
+        integral_core = (r**2)*sp.sin(theta)*sp.conjugate(psi)*(r*sp.cos(theta))*psi_prime
+
+        bracket_product = sp.integrate(integral_core.simplify(),
                                        (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).evalf(20)
         # print(bracket_product)
         bracket_product_norm_square = (sp.conjugate(bracket_product)*bracket_product).evalf()
