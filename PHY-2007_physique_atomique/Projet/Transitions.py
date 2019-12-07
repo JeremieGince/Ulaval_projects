@@ -2,6 +2,7 @@ from Transition import Transition
 import Constantes as const
 import numpy as np
 import sympy as sp
+import tqdm
 
 
 class Transitions(list):
@@ -19,14 +20,16 @@ class Transitions(list):
         for trans in QuantumState.get_valid_transitions_n_to_n(n, n_prime):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self):
+    def get_spontanious_decay_mean(self, z=const.ZH, mu=const.mu0):
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
-        rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=const.ZH, mu=const.mu0) for trans in self])
+        rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+        print(rs_vector)
         self.spontanious_decay_mean = np.mean(rs_vector)
         return self.spontanious_decay_mean
 
-    def get_angular_frequency(self, n, n_prime, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    @staticmethod
+    def get_angular_frequency(n, n_prime, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         e = (- (z ** 2) * (const.alpha ** 2) * mu * (const.c ** 2))/(2 * (n ** 2))
         e_prime = (- (z ** 2) * (const.alpha ** 2) * mu * (const.c ** 2))/(2 * (n_prime ** 2))
         return (e - e_prime)/const.hbar
