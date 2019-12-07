@@ -38,11 +38,13 @@ class Transition:
 
     @numba.jit(parallel=True)
     def get_spontaniuous_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        # print(self.repr_without_spin())
         if self.spontaniuous_decay_rate is not None:
+            # print("we already calculate it")
             return self.spontaniuous_decay_rate
         elif self.repr_without_spin() in Transition.n_ell_m_ell_state_to_rs.keys():
             self.spontaniuous_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
-            print(Transition.n_ell_m_ell_state_to_rs)
+            # print(f"n_ell_m_ell_state_to_rs: {Transition.n_ell_m_ell_state_to_rs}")
             return self.spontaniuous_decay_rate
 
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
@@ -55,7 +57,7 @@ class Transition:
 
         # print(integral_core)
         bracket_product = sp.Integral(sp.FU['TR0'](integral_core.simplify()),
-                                      (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).doit()
+                                      (phi, 0, 2*sp.pi), (r, 0, sp.oo), (theta, 0, sp.pi)).doit()
 
         # print((bracket_product/normalized_coeff))
         bracket_product = sp.FU['TR0'](bracket_product).evalf(20)
@@ -63,7 +65,7 @@ class Transition:
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)
         self.spontaniuous_decay_rate = sp.Float(coeff*bracket_product_norm_square)
-        Transition.n_ell_m_ell_state_to_rs[self.get_delta_energy(z, mu)] = self.spontaniuous_decay_rate
+        Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()] = self.spontaniuous_decay_rate
         return self.spontaniuous_decay_rate
 
     def get_delta_energy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
