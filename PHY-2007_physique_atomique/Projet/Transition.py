@@ -23,7 +23,7 @@ class Transition:
         return this_repr
 
     def get_spontaniuous_decay_rate(self):
-        r, theta, phi = sp.symbols("r theta phi")
+        r, theta, phi = sp.Symbol("r"), sp.Symbol("theta"), sp.Symbol("phi")  # must be reel
         coeff = (4*const.alpha*(self._initial_quantum_state.get_state_energy()
                                 - self._ending_quantum_state.get_state_energy())**3)\
                 /(3*(const.hbar**3)*(const.c**2))
@@ -31,8 +31,8 @@ class Transition:
         psi_prime = self._ending_quantum_state.get_wave_fonction()
 
         bracket_product = sp.integrate((r**2)*sp.sin(theta)*sp.conjugate(psi)*psi_prime,
-                                       (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).evalf(debug=True)
-        print(bracket_product)
+                                       (phi, 0, 2*sp.pi), (theta, 0, sp.pi), (r, 0, sp.oo)).evalf()
+        # print(bracket_product)
         bracket_product_norm_square = (sp.conjugate(bracket_product)*bracket_product).evalf()
         return sp.Float(coeff*bracket_product_norm_square)
 
