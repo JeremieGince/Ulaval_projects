@@ -4,10 +4,6 @@ import sympy as sp
 
 
 class QuantumState:
-    transition_rules = {"Delta ell": [-1, 1],
-                        "Delta m_ell": [-1, 0, 1],
-                        "Delta s": [0],
-                        "Delta m_s": [0]}
 
     def __init__(self, n, ell, m_ell, s, m_s):
         self._n = n
@@ -52,31 +48,29 @@ class QuantumState:
     def get_m_s(self):
         return self._m_s
 
-    def get_state_energy(self, z=1, mu=const.mu0):
+    def get_state_energy(self, z=1, mu=const.mu0) -> float:
+        """
+        Get the energy of the current quantum state
+        :param z: electric charge
+        :param mu:
+        :return: the energy of the current quantum state (float)
+        """
         numerator = - (z**2)*(const.alpha**2)*mu*(const.c**2)
         denumerator = 2*(self._n**2)
         return numerator/denumerator
 
-    def transition(self, other):
-        from Transition import Transition
-        assert isinstance(other, QuantumState), "other must be an instance of QuantumState"
-        assert Transition.possible(self, other), "The transition must be valid. " \
-                                                 "Make sur QuantumState.able_to_translate(other) return True."
-        self._n = other._n
-        self._ell = other._ell
-        self._m_ell = other._m_ell
-        self._s = other._s
-        self._m_s = other._m_s
-
-        "return transition_energy"
-
     def get_valid_transitions_state_to_n(self, other_n: int) -> list:
+        """
+        Get all of the valid transition of the current quantum state to another in the orbital other_n
+        :param other_n: (int)
+        :return: list of QuantumState
+        """
         from Transition import Transition
         valid_transitions = list()
         next_states = set()
-        for key, possibilities in self.transition_rules.items():
+        for key, possibilities in Transition.transition_rules.items():
             for num in possibilities:
-                for key_prime, possibilities_prime in self.transition_rules.items():
+                for key_prime, possibilities_prime in Transition.transition_rules.items():
                     if key == key_prime:
                         continue
                     for num_prime in possibilities_prime:
@@ -125,6 +119,13 @@ class QuantumState:
 
     @staticmethod
     def get_valid_transitions_n_to_n(n, n_prime) -> list:
+        """
+        Get a list of all of the valid transition of n to n_prime
+        :param n: (int)
+        :param n_prime: (int)
+        :return: list of Transition object of the initial state and final state
+        """
+        from Transition import Transition
         valid_transitions = list()
         for ell in QuantumState.get_valid_ell_with_n(n):
             for m_ell in QuantumState.get_valid_m_ell_with_ell(ell):
@@ -136,6 +137,10 @@ class QuantumState:
         return valid_transitions
 
     def __repr__(self):
+        """
+        show a representation of the current quantum state
+        :return:
+        """
         this_repr = f"(n: {self._n}, " \
                     f"ell: {self._ell}, " \
                     f"m_ell: {self._m_ell}, " \
@@ -144,8 +149,13 @@ class QuantumState:
         return this_repr
 
     def get_wave_fonction(self, z=1, mu=const.mu0):
-        theta = sp.Symbol("theta")
-        phi = sp.Symbol("phi")
+        """
+        Get the wave function of the current quantum state as a sympy object
+        :param z: electric charge
+        :param mu:
+        :return: sympy object
+        """
+        theta, phi = sp.Symbol("theta"), sp.Symbol("phi")  # must be reel
         r = sp.Symbol("r")
         y_ell_m_ell = sp.Ynm(self._ell, self._m_ell, theta, phi)
 
