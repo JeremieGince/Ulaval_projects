@@ -125,6 +125,16 @@ class QuantumState:
         return np.array([i for i in np.arange(start=-s, stop=s+1, step=1)])
 
     @staticmethod
+    def get_valid_quantum_state_for_n(n) -> list:
+        valid_states = list()
+        for ell in QuantumState.get_valid_ell_with_n(n):
+            for m_ell in QuantumState.get_valid_m_ell_with_ell(ell):
+                for s in [1/2]:
+                    for m_s in QuantumState.get_valid_m_s_with_s(s):
+                        valid_states.append(QuantumState(n, ell, m_ell, s, m_s))
+        return valid_states
+
+    @staticmethod
     def get_valid_transitions_n_to_n(n, n_prime) -> list:
         """
         Get a list of all of the valid transition of n to n_prime
@@ -133,14 +143,10 @@ class QuantumState:
         :return: list of Transition object of the initial state and final state
         """
         from Transition import Transition
-        valid_transitions = list()
-        for ell in QuantumState.get_valid_ell_with_n(n):
-            for m_ell in QuantumState.get_valid_m_ell_with_ell(ell):
-                for s in [1/2]:
-                    for m_s in QuantumState.get_valid_m_s_with_s(s):
-                        init_quantum_state = QuantumState(n, ell, m_ell, s, m_s)
-                        for end_quantum_state in QuantumState.get_valid_transitions_state_to_n(init_quantum_state, n_prime):
-                            valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
+        valid_transitions = list()  # must be a Transitions object
+        for init_quantum_state in QuantumState.get_valid_quantum_state_for_n(n):
+            for end_quantum_state in QuantumState.get_valid_transitions_state_to_n(init_quantum_state, n_prime):
+                valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
         return valid_transitions
 
     def __repr__(self) -> str:
@@ -165,24 +171,64 @@ class QuantumState:
                     f"m_ell: {self._m_ell})"
         return this_repr
 
+    @staticmethod
+    def xi_n(n=sp.Symbol("n", real=True), r=sp.Symbol("r", real=True),
+             z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+        """
+
+        :param n:
+        :param r:
+        :param z: (float)
+        :param mu: reduced mass
+        :return:
+        """
+        return (2 * z * const.alpha * mu * const.c * r) / (n * const.hbar)
+
+    @staticmethod
+    def u_n_ell(n=sp.Symbol("n", real=True), ell=sp.Symbol("ell", real=True),
+                z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+        """
+
+        :param n:
+        :param ell:
+        :param z:
+        :param mu: reduced mass (float)
+        :return:
+        """
+        u_coeff_norm = sp.sqrt(((2 * z * const.alpha * mu * const.c)/(n * const.hbar)) ** 3)
+        u_coeff_fact = sp.sqrt(np.math.factorial(n - ell - 1) / (2 * n * np.math.factorial(n + ell)))
+        u_coeff = u_coeff_norm*u_coeff_fact
+
+        exp_term = sp.exp(-QuantumState.xi_n(n=n, z=z, mu=mu)/2)
+        laguerre_term = sp.assoc_laguerre(n-ell-1, 2*ell+1, QuantumState.xi_n(n=n, z=z, mu=mu))
+
+        return u_coeff*exp_term*(QuantumState.xi_n(n=n, z=z, mu=mu)**ell)*laguerre_term
+
     def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the wave function of the current quantum state as a sympy object
         :param z: electric charge
-        :param mu:
+        :param mu: reduced mass (float)
         :return: sympy object
         """
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        y_ell_m_ell = sp.Ynm(self._ell, self._m_ell, theta, phi)
+        return QuantumState.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)*sp.Ynm(self._ell, self._m_ell, theta, phi)
 
-        coeff = sp.sqrt((((2*z*const.alpha*mu*const.c)
-                          /(self._n*const.hbar))**3)*(np.math.factorial(self._n-self._ell-1)
-                                                      /(2*self._n*np.math.factorial(self._n-self._ell))))
-        xi_n = (2*z*const.alpha*mu*const.c*r)/(self._n*const.hbar)
-        u_n_ell = coeff*sp.exp(-xi_n/2)*(xi_n**self._ell)*sp.assoc_laguerre(self._n-self._ell-1, 2*self._ell+1, xi_n)
-
-        psi_n_ell_m_ell = u_n_ell*y_ell_m_ell
-        return psi_n_ell_m_ell
+    @staticmethod
+    def get_g_n(n: int) -> int:
+        """
+        Get the degenesrence number of the level n
+        :param n: orbital level
+        :return: degenesrecence number (int)
+        """
+        deg_dico = dict()
+        for quantum_state in QuantumState.get_valid_quantum_state_for_n(n):
+            energy = quantum_state.get_state_energy()
+            if energy in deg_dico.keys():
+                deg_dico[energy] += 1
+            else:
+                deg_dico[energy] = 1
+        return int(np.sum(list(deg_dico.values())))
 
 
 if __name__ == '__main__':
