@@ -69,15 +69,11 @@ class Transition:
         :param mu: reduced mass (float)
         :return: the spontanious decay rate (float)
         """
-        # print(self.repr_without_spin())
-
         # check if spontanious_decay_rate is already calculated
         if self.spontanious_decay_rate is not None:
-            # print("we already calculate it")
             return self.spontanious_decay_rate
         elif self.repr_without_spin() in Transition.n_ell_m_ell_state_to_rs.keys():
             self.spontanious_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
-            # print(f"n_ell_m_ell_state_to_rs: {Transition.n_ell_m_ell_state_to_rs}")
             return self.spontanious_decay_rate
 
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
@@ -85,17 +81,20 @@ class Transition:
         psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
         psi_prime = sp.FU['TR8'](self._ending_quantum_state.get_wave_fonction(z, mu))
 
-        # print(f"psi: {psi} \n psi_prime: {psi_prime}")
+        # print(f"\n psi: {psi} \n psi_prime: {psi_prime} \n")
 
         integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
         # print(f"\n integral_core: {integral_core} \n {sp.FU['TR0'](sp.expand(integral_core, func=True))}")
 
         # print(sp.lambdify((theta, r, phi), integral_core, modules="numpy"))
         print(lambdastr((theta, r, phi), integral_core))
+
         def bound_r(_):
             return [0, mpmath.inf]
+
         def bound_phi(_, __):
             return [0, 2*mpmath.pi]
+
         def bound_theta():
             return [0, mpmath.pi]
 

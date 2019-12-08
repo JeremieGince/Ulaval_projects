@@ -8,15 +8,15 @@ class QuantumFactory:
     QuantumFactory is a module to combine a bunch of static method util in quantum mechanics
     """
     @staticmethod
-    def xi_n(n=sp.Symbol("n", real=True), r=sp.Symbol("r", real=True),
-             z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def zeta_n(n=sp.Symbol("n", real=True), r=sp.Symbol("r", real=True),
+               z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
-
-        :param n:
-        :param r:
-        :param z: (float)
+        return the zeta_n function
+        :param n: orbital number n (int)
+        :param r: rayon variable (sympy object)
+        :param z: (int)
         :param mu: reduced mass
-        :return:
+        :return: zeta_n function (sympy object)
         """
         return (2 * z * const.alpha * mu * const.c * r) / (n * const.hbar)
 
@@ -24,24 +24,30 @@ class QuantumFactory:
     def u_n_ell(n=sp.Symbol("n", real=True), ell=sp.Symbol("ell", real=True),
                 z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
-
-        :param n:
-        :param ell:
-        :param z:
+        return the u_{n \ell} function
+        :param n: orbital number n (int)
+        :param ell: kinetic momentum  (int)
+        :param z: (int)
         :param mu: reduced mass (float)
-        :return:
+        :return: (sympy object)
         """
         u_coeff_norm = sp.sqrt(((2 * z * const.alpha * mu * const.c) / (n * const.hbar)) ** 3)
         u_coeff_fact = sp.sqrt(np.math.factorial(n - ell - 1) / (2 * n * np.math.factorial(n + ell)))
         u_coeff = u_coeff_norm * u_coeff_fact
 
-        exp_term = sp.exp(-QuantumFactory.xi_n(n=n, z=z, mu=mu) / 2)
-        laguerre_term = sp.assoc_laguerre(n - ell - 1, 2 * ell + 1, QuantumFactory.xi_n(n=n, z=z, mu=mu))
+        exp_term = sp.exp(-QuantumFactory.zeta_n(n=n, z=z, mu=mu) / 2)
+        laguerre_term = sp.assoc_laguerre(n - ell - 1, 2 * ell + 1, QuantumFactory.zeta_n(n=n, z=z, mu=mu))
 
-        return u_coeff * exp_term * (QuantumFactory.xi_n(n=n, z=z, mu=mu) ** ell) * laguerre_term
+        return u_coeff * exp_term * (QuantumFactory.zeta_n(n=n, z=z, mu=mu) ** ell) * laguerre_term
 
     @staticmethod
     def Y_ell_m_ell(ell: int, m_ell: int):
+        """
+        Return the spherical harmonic function
+        :param ell: kinetic momentum (int)
+        :param m_ell:
+        :return: (sympy object)
+        """
         from sympy.functions.special.spherical_harmonics import Ynm
         theta, phi = sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         return sp.FU['TR8'](Ynm(ell, m_ell, theta, phi).expand(func=True))

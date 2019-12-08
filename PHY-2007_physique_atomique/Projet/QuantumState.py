@@ -8,20 +8,20 @@ from QuantumFactory import QuantumFactory
 
 class QuantumState:
 
-    def __init__(self, n: int, ell: int, m_ell: float, s: float, m_s: float):
+    def __init__(self, n: int, ell: int, m_ell: int, s: float, m_s: float):
         """
         QuantumState constructor
         :param n: orbital number (int)
         :param ell: angular momentum (int)
-        :param m_ell: (float)
+        :param m_ell: (int)
         :param s: spin (float)
         :param m_s: (float)
         """
-        self._n = n
-        self._ell = ell
-        self._m_ell = m_ell
-        self._s = s
-        self._m_s = m_s
+        self._n: int = n
+        self._ell: int = ell
+        self._m_ell: int = m_ell
+        self._s: float = s
+        self._m_s: float = m_s
         self.check_invariants()
 
     def check_invariants(self) -> None:
@@ -48,7 +48,7 @@ class QuantumState:
     def get_ell(self) -> int:
         return self._ell
 
-    def get_m_ell(self) -> float:
+    def get_m_ell(self) -> int:
         return self._m_ell
 
     def get_s(self) -> float:
