@@ -12,6 +12,7 @@ m_p = 1.6725e-27  # [kg]
 mu_B = (q_e * hbar)/(2 * m_e)
 g_ell = 1
 g_s = 2
+s_H = [1/2]  # possible s for Hydrogen
 
 
 def mu_mag(L, S):
