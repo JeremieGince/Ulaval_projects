@@ -5,6 +5,7 @@ import numba
 from QuantumFactory import QuantumFactory
 
 
+
 class QuantumState:
 
     def __init__(self, n: int, ell: int, m_ell: float, s: float, m_s: float):
@@ -142,8 +143,9 @@ class QuantumState:
         :param mu: reduced mass (float)
         :return: sympy object
         """
-        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        return QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)*sp.Ynm(self._ell, self._m_ell, theta, phi)
+        u = QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)
+        y = QuantumFactory.Y_ell_m_ell(self._ell, self._m_ell)
+        return u*y
 
     def decay_number(self, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """

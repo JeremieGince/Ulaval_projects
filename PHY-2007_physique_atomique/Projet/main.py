@@ -7,7 +7,7 @@ if __name__ == '__main__':
     rs_mean_normalized_coeff = ((const.alpha**5)*const.mu_H*(const.c**2))/const.hbar
     omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2*const.hbar)
 
-    n, n_prime = 4, 2
+    n, n_prime = 3, 2
 
     transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime)
     print(transitions_n_to_n_prime)

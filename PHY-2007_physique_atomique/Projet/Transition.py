@@ -4,6 +4,8 @@ import sympy as sp
 import numpy as np
 import numba
 from numba import cuda
+from sympy.utilities.lambdify import lambdastr
+import mpmath
 
 
 class Transition:
@@ -57,7 +59,7 @@ class Transition:
                     f"-> {self._ending_quantum_state.repr_without_spin()})"
         return this_repr
 
-    @numba.jit
+    # @numba.jit
     def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the spontanious decay rate of the transition
@@ -78,20 +80,27 @@ class Transition:
 
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         coeff = (4*const.alpha*(self.get_delta_energy(z, mu)**3))/(3*(const.hbar**3)*(const.c**2))
-        psi = self._initial_quantum_state.get_wave_fonction(z, mu)
-        psi_prime = self._ending_quantum_state.get_wave_fonction(z, mu)
+        psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
+        psi_prime = sp.FU['TR8'](self._ending_quantum_state.get_wave_fonction(z, mu))
 
         integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
-        # print(integral_core)
+        # print(f"\n integral_core: {integral_core}")
+
+        # print(sp.lambdify((r, theta, phi), integral_core))
+        # print(lambdastr((r, theta, phi), integral_core))
+        # print(sp.lambdify((r, theta, phi), integral_core)(0.1, 0.2, 0.3))
+        # print(mpmath.quad(sp.lambdify((r, theta, phi), integral_core), [phi, 0, 2*mpmath.pi], [r, 0, mpmath.inf], [theta, 0, mpmath.pi]))
+        # print('-'*75)
+        # raise NotImplemented
 
         # creation of the Integral object and first try to resolve it
         bracket_product = sp.Integral(sp.FU['TR0'](integral_core.simplify()),
-                                      (phi, 0, 2*sp.pi), (r, 0, sp.oo), (theta, 0, sp.pi)).doit()
-        # print((bracket_product/normalized_coeff))
+                                      (phi, 0, 2*sp.pi), (r, 0, mpmath.inf), (theta, 0, sp.pi)).doit()
+        # print(f"\n Integral bracket_product: {bracket_product}")
 
         # simplify the result of the first try and evaluation of the integral, last attempt
         bracket_product = sp.FU['TR0'](bracket_product).evalf()
-        # print(bracket_product)
+        # print(f"\n bracket_product: {bracket_product}")
 
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)

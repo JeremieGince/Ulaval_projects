@@ -97,6 +97,7 @@ class Transitions(list):
         return np.array(I)
 
     def ratio_of_the_beam(self, T: float, z: int=const.Z_H, mu: float=const.mu_H):
+        raise NotImplemented()
         I_ratio: list = list()
         for couple in self.get_n_to_n_prime_couple():
             I_ratio.append(self.intensity_of_the_beam(T, z, mu))
