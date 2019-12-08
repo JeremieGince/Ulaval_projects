@@ -154,7 +154,7 @@ class Geometric_calculus:
         """
         n = self._get_refraction_value(w)
         H =(self._L + (self._a/3)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
-        d = (np.sqrt(3)*(self._a/3))/np.sin(np.arcsin((np.sin(np.pi/6 + self._angle))/n) + np.pi/6)
+        d = (np.sqrt(3)*(self._a/3))/np.sin((2*np.pi)/6- np.arcsin((np.sin(np.pi/6 + self._angle))/n))
         den = np.sin(np.pi/2 + np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n) - np.pi/6 + self._phi) - np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin(np.sin(np.pi/6 + self._angle)/n)))))
         nim = np.sin(np.arcsin((np.sin(np.pi/6 + self._angle ))/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n))))
         diff_h = ((H - d)*nim)/den
