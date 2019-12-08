@@ -93,3 +93,44 @@ class QuantumFactory:
             else:
                 deg_dico[energy] = 1
         return int(np.sum(list(deg_dico.values())))
+
+    @staticmethod
+    def get_state_energy_unperturbeted(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Get the energy of the current quantum state
+        :param n:
+        :param z: electric charge
+        :param mu:
+        :return: the energy of the current quantum state (float if z and mu are float else sympy object)
+        """
+        numerator = - (z**2)*(const.alpha**2)*mu*(const.c**2)
+        denumerator = 2*(n**2)
+        return numerator/denumerator
+
+    @staticmethod
+    def get_delta_energy_unpertuberted(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Getter of the transition energy without any pertubation
+        :param z:
+        :param mu: reduced mass (float)
+        :return: transition energy (float) or transition energy (sympy object)
+        """
+        return QuantumFactory.get_state_energy_unperturbeted(n, z, mu)\
+               - QuantumFactory.get_state_energy_unperturbeted(n_prime, z, mu)
+
+    @staticmethod
+    def get_angular_frequency(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Getter of the transition angular frequency without any pertubation
+        :param z:
+        :param mu: reduced mass (float)
+        :return: angular frequency (float) or angular frequency (sympy object)
+        """
+        return QuantumFactory.get_delta_energy_unpertuberted(n, n_prime, z, mu)/const.hbar
+
+
+if __name__ == '__main__':
+    from Transitions import Transitions
+    print(Transitions(3, 2))
+
+    print(QuantumFactory.get_angular_frequency(4, 2, const.Z_H, const.mu_H))
