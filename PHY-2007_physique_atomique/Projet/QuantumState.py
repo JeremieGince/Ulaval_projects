@@ -63,9 +63,7 @@ class QuantumState:
         :param mu:
         :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
-        numerator = - (z**2)*(const.alpha**2)*mu*(const.c**2)
-        denumerator = 2*(self._n**2)
-        return numerator/denumerator
+        return QuantumFactory.get_state_energy_unperturbeted(self._n, z, mu)
 
     def get_valid_transitions_state_to_n(self, other_n: int) -> list:
         """
