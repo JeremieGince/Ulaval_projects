@@ -16,19 +16,14 @@ class Transitions(list):
         super().append(transition)
 
     def append_transitions_n_to_n(self, n, n_prime):
-        from QuantumState import QuantumState
-        for trans in QuantumState.get_valid_transitions_n_to_n(n, n_prime):
+        from QuantumFactory import QuantumFactory
+        for trans in QuantumFactory.get_valid_transitions_n_to_n(n, n_prime):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu0):
+    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H):
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
-        # rs_vector = np.array([trans.get_spontaniuous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
-        rs_vector = list()
-        for trans in tqdm.tqdm(self):
-            rs = trans.get_spontanious_decay_rate(z=z, mu=mu)
-            rs_vector.append(rs)
-        rs_vector = np.array(rs_vector)
+        rs_vector = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
         print(rs_vector)
         self.spontanious_decay_mean = np.mean(rs_vector)
         return self.spontanious_decay_mean
@@ -45,6 +40,9 @@ class Transitions(list):
             this_repr += f"{trans}, \n"
         this_repr += "]"
         return this_repr
+
+    def save(self):
+        raise NotImplemented()
 
 
 if __name__ == '__main__':
