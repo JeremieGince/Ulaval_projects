@@ -53,7 +53,7 @@ class Transition:
     def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the spontanious decay rate of the transition
-        :param z: 
+        :param z:
         :param mu: reduced mass (float)
         :return: the spontanious decay rate (float)
         """
