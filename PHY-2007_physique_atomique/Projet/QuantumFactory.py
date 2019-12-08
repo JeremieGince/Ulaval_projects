@@ -115,8 +115,9 @@ class QuantumFactory:
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
         """
-        return QuantumFactory.get_state_energy_unperturbeted(n, z, mu)\
-               - QuantumFactory.get_state_energy_unperturbeted(n_prime, z, mu)
+        e = QuantumFactory.get_state_energy_unperturbeted(n, z, mu)
+        e_prime = QuantumFactory.get_state_energy_unperturbeted(n_prime, z, mu)
+        return e - e_prime
 
     @staticmethod
     def get_angular_frequency(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
