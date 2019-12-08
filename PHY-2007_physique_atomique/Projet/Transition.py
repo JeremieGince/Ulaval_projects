@@ -51,7 +51,15 @@ class Transition:
 
     # @numba.jit(parallel=True)
     def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Get the spontanious decay rate of the transition
+        :param z: 
+        :param mu: reduced mass (float)
+        :return: the spontanious decay rate (float)
+        """
         # print(self.repr_without_spin())
+
+        # check if spontanious_decay_rate is already calculated
         if self.spontanious_decay_rate is not None:
             # print("we already calculate it")
             return self.spontanious_decay_rate
@@ -66,17 +74,23 @@ class Transition:
         psi_prime = self._ending_quantum_state.get_wave_fonction(z, mu)
 
         integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
-
         # print(integral_core)
+
+        # creation of the Integral object and first try to resolve it
         bracket_product = sp.Integral(sp.FU['TR0'](integral_core.simplify()),
                                       (phi, 0, 2*sp.pi), (r, 0, sp.oo), (theta, 0, sp.pi)).doit()
-
         # print((bracket_product/normalized_coeff))
+
+        # simplify the result of the first try and evaluation of the integral, last attempt
         bracket_product = sp.FU['TR0'](bracket_product).evalf()
         # print(bracket_product)
+
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)
+
         self.spontanious_decay_rate = sp.Float(coeff * bracket_product_norm_square)
+
+        # updating Transition static attribute
         Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()] = self.spontanious_decay_rate
         return self.spontanious_decay_rate
 
