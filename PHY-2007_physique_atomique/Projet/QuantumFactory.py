@@ -161,6 +161,36 @@ class QuantumFactory:
         """
         return QuantumFactory.get_delta_energy_unpertuberted(n, n_prime, z, mu)/const.hbar
 
+    @staticmethod
+    def decay_number(n: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        """
+        Return the decay number of the level n for unperturbeted energy.
+        :param n: orbital number n (int)
+        :param k_B: (float)
+        :param T: Current temperature (float)
+        :param z: (int)
+        :param mu: reduced mass (float)
+        :return: a sympy expression of the decay number (sympy object)
+        """
+        alpha = sp.Symbol('alpha')  # proportional function
+        return alpha*QuantumFactory.get_g_n(n)*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(k_B*T))
+
+    @staticmethod
+    def decay_number_ratio(n: int, n_prime: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        """
+        Return the ratio of decay number of the levels n to n_prime for unperturbeted energy.
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param k_B: (float)
+        :param T: Current temperature (float)
+        :param z: (int)
+        :param mu: reduced mass (float)
+        :return: the ration of decay number (float)
+        """
+        N_i = QuantumFactory.decay_number(n, k_B, T, z, mu)
+        N_j = QuantumFactory.decay_number(n_prime, k_B, T, z, mu)
+        return (N_i/N_j).evalf()
+
 
 if __name__ == '__main__':
     from Transitions import Transitions

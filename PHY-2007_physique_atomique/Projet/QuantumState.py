@@ -145,6 +145,18 @@ class QuantumState:
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         return QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)*sp.Ynm(self._ell, self._m_ell, theta, phi)
 
+    def decay_number(self, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        """
+        Return the decay number of the current QuantumState.
+        :param k_B: (float)
+        :param T: Current temperature (float)
+        :param z: (int)
+        :param mu: reduced mass (float)
+        :return: a sympy expression of the decay number (sympy object)
+        """
+        alpha = sp.Symbol('alpha')  # proportional function
+        return alpha*QuantumFactory.get_g_n(self._n)*sp.exp(-self.get_state_energy(z, mu)/(k_B*T))
+
 
 if __name__ == '__main__':
     from Transition import Transition

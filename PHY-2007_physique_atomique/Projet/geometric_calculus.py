@@ -1,5 +1,5 @@
 import numpy as np
-import Projet.Constantes as const
+import Constantes as const
 
 
 class Geometric_calculus:
@@ -53,7 +53,6 @@ class Geometric_calculus:
         self._C = C
         self._phi = self._get_phi(self._w_c)
         self._x_ref = self.get_x_for_frequency(self._w_c)
-
 
     def _get_phi(self, w_c) -> float:
         """This methods calculates the value of 

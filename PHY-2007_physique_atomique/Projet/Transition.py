@@ -12,6 +12,11 @@ class Transition:
                          "Delta s": [0],
                          "Delta m_s": [0]}
 
+    TRANSITIONS_RULES_SPIN = {"Delta ell": [-1, 1],
+                              "Delta m_ell": [-1, 0, 1],
+                              "Delta j": [-1, 0, 1],
+                              "Delta m_j": [-1, 0, 1]}
+
     n_ell_m_ell_state_to_rs = dict()
 
     def __init__(self, initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
@@ -49,11 +54,11 @@ class Transition:
                     f"-> {self._ending_quantum_state.repr_without_spin()})"
         return this_repr
 
-    # @numba.jit(parallel=True)
+    @numba.jit
     def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the spontanious decay rate of the transition
-        :param z:
+        :param z: (int)
         :param mu: reduced mass (float)
         :return: the spontanious decay rate (float)
         """

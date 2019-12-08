@@ -79,6 +79,10 @@ class Transitions(list):
         this_repr += "]"
         return this_repr
 
+    def intensity_of_the_beam(self):
+        alpha = sp.Symbol('alpha')  # proportional function
+
+
     def save(self):
         raise NotImplemented("This method is not implemented yet")
 
