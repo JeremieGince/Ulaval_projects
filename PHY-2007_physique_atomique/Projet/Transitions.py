@@ -79,6 +79,28 @@ class Transitions(list):
         this_repr += "]"
         return this_repr
 
+    def get_n_to_n_prime_couple(self) -> set:
+        couple_set: set = set()
+        for trans in self:
+            couple_set.add(trans.get_n_to_n_prime_couple())
+        return couple_set
+
+    def intensity_of_the_beam(self, T: float, z: int=const.Z_H, mu: float=const.mu_H) -> np.ndarray:
+        from QuantumFactory import QuantumFactory
+        I: list = list()
+        alpha = sp.Symbol('alpha')  # proportional function
+        for couple in self.get_n_to_n_prime_couple():
+            omega = QuantumFactory.get_transition_angular_frequency_unperturbated(couple[0], couple[1], z, mu)
+            N = QuantumFactory.decay_number(couple[0], T, z, mu)
+            Rs_mean = self.get_spontanious_decay_mean(z, mu)
+            I.append(alpha*N*omega*Rs_mean)
+        return np.array(I)
+
+    def ratio_of_the_beam(self, T: float, z: int=const.Z_H, mu: float=const.mu_H):
+        I_ratio: list = list()
+        for couple in self.get_n_to_n_prime_couple():
+            I_ratio.append(self.intensity_of_the_beam(T, z, mu))
+
     def save(self):
         raise NotImplemented("This method is not implemented yet")
 
