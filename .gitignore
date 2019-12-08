@@ -4,3 +4,4 @@
 .idea/modules.xml
 .idea/Ulaval_projects.iml
 .idea/vcs.xml
+*.pyc
