@@ -52,6 +52,7 @@ class Geometric_calculus:
         self._C = C
         self._phi = self._get_phi(self._w_c)
         self._x_ref = self.get_x_for_frequency(self._w_c)
+        print(self._phi)
 
     def _get_phi(self, w_c) -> float:
         """This methods calculates the value of 
@@ -75,12 +76,12 @@ class Geometric_calculus:
             value of the angle of rotation of the prism in rad
         """
         n = self._get_refraction_value(w_c)
-        sin_argument = -np.arcsin((1/(2*n)))+ np.pi/3
+        sin_argument = np.pi/3 - np.arcsin((np.sin(self._angle + np.pi/6)/n))
         arcsin_argument = n*np.sin(sin_argument)
-        phi = np.arcsin(arcsin_argument) - self._angle - np.pi/6
+        phi = np.arcsin(arcsin_argument) - np.pi/6
         return phi
 
-    def _get_refraction_value(self,w) -> float:
+    def _get_refraction_value(self ,w) -> float:
         """This methods calculates the value of 
            the angle of the rotation of the prism which
             ensures that the beam with a frequency of w_c
@@ -132,8 +133,8 @@ class Geometric_calculus:
                 The value of the position of the beam on the screen in meters if the beam was refracted only once
         """
         n = self._get_refraction_value(w)
-        arcsin_argument = np.sin(np.pi/6 + self._angle+ self._phi)/n
-        h_top = (self._L + self._a/8)*(np.sin(np.arcsin(arcsin_argument) - np.pi/6))
+        arcsin_argument = np.sin(np.pi/6 + self._angle)/n
+        h_top = (self._L + (self._a/8)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
         return h_top
 
     def get_differences_of_h(self, w) -> float:
@@ -150,9 +151,15 @@ class Geometric_calculus:
             value: float
                 the height differences in m
         """
-        
+        n = self._get_refraction_value(w)
+        H =(self._L + (self._a/8)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
+        d = (np.sqrt(3)*(self._a/8))/np.sin(np.arcsin((np.sin(np.pi/6 + self._angle))/n) + np.pi/6)
+        den = np.sin(np.pi/3 + np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n) + self._phi)))
+        nim = np.sin(np.arcsin((np.sin(np.pi/6 + self._angle ))/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n))))
+        diff_h = ((H - d)*nim)/den
+        return diff_h
 
-    def get_delta_x(self, w, angle, a, L, B, C) -> float:
+    def get_delta_x(self, w) -> float:
         """This methods calculates the value of
             the distance between the beam and the bean of frequency of w_c
             on the screen
@@ -161,24 +168,18 @@ class Geometric_calculus:
             ----------
             w : float
                 frequency of the beam in Hz
-            angle : float
-                Angle of the beam producer in rad
-            a : float
-                Lenght of a side of the prism in meters
-            L : float
-                Distance between the center of the prism and the screen in meter
-            B : float
-                First Cauchy law's constant
-            C : float
-                Second Cauchy law's constant in meters^2
 
             Returns
             ----------
             value: float
                 The value of the position of the beam on the screen in meters
         """
-        delta_x = self.get_x_for_frequency(w, angle, a, L, B, C) - self._x_ref
+        delta_x = self.get_x_for_frequency(w) - self._x_ref
         return delta_x
 
 if __name__ == "__main__":
-    G = Geometric_calculus(1, np.pi/6, 2e-2, 50e-2, 1.4580, 0.00354e-12)
+    G = Geometric_calculus(3873675771820550.5, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
+    print(G.get_delta_x(2.69e15))
+    print(G.get_delta_x(3e15))
+    print(G.get_delta_x(4e15))
+    print(G.get_delta_x(4.71e15))
