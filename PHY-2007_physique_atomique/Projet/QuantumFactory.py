@@ -120,7 +120,7 @@ class QuantumFactory:
         return e - e_prime
 
     @staticmethod
-    def get_angular_frequency(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_transition_angular_frequency_unperturbated(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition angular frequency without any pertubation
         :param z:
@@ -134,4 +134,4 @@ if __name__ == '__main__':
     from Transitions import Transitions
     print(Transitions(3, 2))
 
-    print(QuantumFactory.get_angular_frequency(4, 2, const.Z_H, const.mu_H))
+    print(QuantumFactory.get_transition_angular_frequency_unperturbated(4, 2, const.Z_H, const.mu_H))
