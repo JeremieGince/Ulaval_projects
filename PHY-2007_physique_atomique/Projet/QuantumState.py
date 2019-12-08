@@ -71,6 +71,8 @@ class QuantumState:
         :param other_n: (int)
         :return: list of QuantumState
         """
+        import warnings
+        warnings.warn("Warning! This method seems to be not valid", DeprecationWarning)
         from Transition import Transition
         valid_transitions = list()
         next_states = set()
