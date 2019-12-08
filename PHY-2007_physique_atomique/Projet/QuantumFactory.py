@@ -44,7 +44,7 @@ class QuantumFactory:
     def Y_ell_m_ell(ell: int, m_ell: int):
         from sympy.functions.special.spherical_harmonics import Ynm
         theta, phi = sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        return sp.FU['TR0'](Ynm(ell, m_ell, theta, phi).expand(func=True))
+        return sp.FU['TR8'](Ynm(ell, m_ell, theta, phi).expand(func=True))
 
     @staticmethod
     def get_valid_ell_with_n(n: int):
