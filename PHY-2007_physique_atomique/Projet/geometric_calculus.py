@@ -1,5 +1,6 @@
 import numpy as np
-import Projet.Constantes as const
+import Constantes as const
+
 
 class Geometric_calculus:
     """
@@ -161,7 +162,7 @@ class Geometric_calculus:
 
     def get_delta_x(self, w) -> float:
         """This methods calculates the value of
-            the distance between the beam and the bean of frequency of w_c
+            the distance between the beam and the beam of frequency of w_c
             on the screen
 
             Parameters
@@ -176,6 +177,7 @@ class Geometric_calculus:
         """
         delta_x = self.get_x_for_frequency(w) - self._x_ref
         return delta_x
+
 
 if __name__ == "__main__":
     G = Geometric_calculus(3873675771820550.5, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
