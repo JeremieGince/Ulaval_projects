@@ -41,19 +41,19 @@ class QuantumState:
         """
         return np.array([self._n, self._ell, self._m_ell, self._s, self._m_s])
 
-    def get_n(self):
+    def get_n(self) -> int:
         return self._n
 
-    def get_ell(self):
+    def get_ell(self) -> int:
         return self._ell
 
-    def get_m_ell(self):
+    def get_m_ell(self) -> float:
         return self._m_ell
 
-    def get_s(self):
+    def get_s(self) -> float:
         return self._s
 
-    def get_m_s(self):
+    def get_m_s(self) -> float:
         return self._m_s
 
     def get_state_energy(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
@@ -174,5 +174,5 @@ if __name__ == '__main__':
 
     print('-' * 175)
 
-    for valid_transition in QuantumState.get_valid_transitions_n_to_n(1, 2):
+    for valid_transition in QuantumFactory.get_valid_transitions_n_to_n(1, 2):
         print(valid_transition)
