@@ -7,6 +7,7 @@ from numba import cuda
 from sympy.utilities.lambdify import lambdastr
 import mpmath
 import scipy as sc
+from scipy import integrate
 
 
 class Transition:
@@ -89,21 +90,28 @@ class Transition:
         integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
         # print(f"\n integral_core: {integral_core} \n {sp.FU['TR0'](sp.expand(integral_core, func=True))}")
 
-        # print(sp.lambdify((r, theta, phi), integral_core))
-        # print(lambdastr((r, theta, phi), integral_core))
-        # print(sp.lambdify((r, theta, phi), integral_core)(0.1, 0.2, 0.3))
-        # print(sc.integrate.nquad(sp.lambdify((r, theta, phi), integral_core), [phi, 0, 2*mpmath.pi], [r, 0, mpmath.inf], [theta, 0, mpmath.pi]))
+        # print(sp.lambdify((theta, r, phi), integral_core, modules="numpy"))
+        print(lambdastr((theta, r, phi), integral_core))
+        def bound_r(_):
+            return [0, mpmath.inf]
+        def bound_phi(_, __):
+            return [0, 2*mpmath.pi]
+        def bound_theta():
+            return [0, mpmath.pi]
+
+        bracket_product = sc.integrate.nquad(sp.lambdify((theta, r, phi), integral_core, modules="numpy"), [bound_phi, bound_r, bound_theta])[0]
+        # print(bracket_product)
         # print('-'*75)
         # raise NotImplemented
 
         # creation of the Integral object and first try to resolve it
-        bracket_product = sp.Integral(sp.expand(integral_core, func=True).simplify(),
-                                      (phi, 0, 2*mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi))
-        # print(f"\n Integral bracket_product: {bracket_product}")
-
-        # simplify the result of the first try and evaluation of the integral, last attempt
-        bracket_product = sp.FU['TR0'](bracket_product).evalf(n=50, maxn=1_000, strict=True)
-        print(f"\n bracket_product: {bracket_product}")
+        # bracket_product = sp.Integral(sp.expand(integral_core, func=True).simplify(),
+        #                               (phi, 0, 2*mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi))
+        # # print(f"\n Integral bracket_product: {bracket_product}")
+        #
+        # # simplify the result of the first try and evaluation of the integral, last attempt
+        # bracket_product = sp.FU['TR0'](bracket_product).evalf(n=50, maxn=1_000, strict=True)
+        # print(f"\n bracket_product: {bracket_product}")
 
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)
