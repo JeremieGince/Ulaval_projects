@@ -5,3 +5,5 @@
 .idea/Ulaval_projects.iml
 .idea/vcs.xml
 *.pyc
+*.xml
+*.iml
