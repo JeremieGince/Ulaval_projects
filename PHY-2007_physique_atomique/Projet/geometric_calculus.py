@@ -1,5 +1,5 @@
 import numpy as np
-import Constantes as const
+import Projet.Constantes as const
 
 
 class Geometric_calculus:
@@ -53,7 +53,7 @@ class Geometric_calculus:
         self._C = C
         self._phi = self._get_phi(self._w_c)
         self._x_ref = self.get_x_for_frequency(self._w_c)
-        print(self._phi)
+
 
     def _get_phi(self, w_c) -> float:
         """This methods calculates the value of 
@@ -135,7 +135,7 @@ class Geometric_calculus:
         """
         n = self._get_refraction_value(w)
         arcsin_argument = np.sin(np.pi/6 + self._angle)/n
-        h_top = (self._L + (self._a/8)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
+        h_top = (self._L + (self._a/4)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
         return h_top
 
     def get_differences_of_h(self, w) -> float:
@@ -153,9 +153,9 @@ class Geometric_calculus:
                 the height differences in m
         """
         n = self._get_refraction_value(w)
-        H =(self._L + (self._a/8)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
-        d = (np.sqrt(3)*(self._a/8))/np.sin(np.arcsin((np.sin(np.pi/6 + self._angle))/n) + np.pi/6)
-        den = np.sin(np.pi/3 + np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n) + self._phi)))
+        H =(self._L + (self._a/4)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
+        d = (np.sqrt(3)*(self._a/4))/np.sin(np.arcsin((np.sin(np.pi/6 + self._angle))/n) + np.pi/6)
+        den = np.sin(np.pi/2 + np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n) - np.pi/6 + self._phi) - np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin(np.sin(np.pi/6 + self._angle)/n)))))
         nim = np.sin(np.arcsin((np.sin(np.pi/6 + self._angle ))/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n))))
         diff_h = ((H - d)*nim)/den
         return diff_h
@@ -180,8 +180,10 @@ class Geometric_calculus:
 
 
 if __name__ == "__main__":
-    G = Geometric_calculus(3873675771820550.5, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
-    print(G.get_delta_x(2.69e15))
+    G = Geometric_calculus(3.5e15, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
+    print(G.get_delta_x(2.2e15))
+    print(G.get_delta_x(2.5e15))
     print(G.get_delta_x(3e15))
+    print(G.get_delta_x(3.5e15))
     print(G.get_delta_x(4e15))
-    print(G.get_delta_x(4.71e15))
+    print(G.get_delta_x(4.51e15))
