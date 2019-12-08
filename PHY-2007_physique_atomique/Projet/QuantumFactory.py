@@ -53,12 +53,12 @@ class QuantumFactory:
         return np.array([i for i in np.arange(start=-s, stop=s+1, step=1)])
 
     @staticmethod
-    def get_valid_quantum_state_for_n(n) -> list:
+    def get_valid_quantum_state_for_n(n, s_list: list = const.s_H) -> list:
         from QuantumState import QuantumState
         valid_states = list()
         for ell in QuantumFactory.get_valid_ell_with_n(n):
             for m_ell in QuantumFactory.get_valid_m_ell_with_ell(ell):
-                for s in [1/2]:
+                for s in s_list:
                     for m_s in QuantumFactory.get_valid_m_s_with_s(s):
                         valid_states.append(QuantumState(n, ell, m_ell, s, m_s))
         return valid_states
@@ -66,13 +66,14 @@ class QuantumFactory:
     @staticmethod
     def get_valid_transitions_n_to_n(n, n_prime) -> list:
         """
-        Get a list of all of the valid transition of n to n_prime
+        Get a Transitions(list) container of all of the valid transition of n to n_prime
         :param n: (int)
         :param n_prime: (int)
-        :return: list of Transition object of the initial state and final state
+        :return: Transitions(list) of Transition object of the initial state and final state (Transitions)
         """
         from Transition import Transition
-        valid_transitions = list()  # must be a Transitions object
+        from Transitions import Transitions
+        valid_transitions = Transitions()  # must be a Transitions object
         for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
             for end_quantum_state in init_quantum_state.get_valid_transitions_state_to_n(n_prime):
                 valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
