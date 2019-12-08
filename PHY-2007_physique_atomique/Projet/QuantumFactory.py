@@ -162,18 +162,18 @@ class QuantumFactory:
         return QuantumFactory.get_delta_energy_unpertuberted(n, n_prime, z, mu)/const.hbar
 
     @staticmethod
-    def decay_number(n: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+    def decay_number(n: int, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
         Return the decay number of the level n for unperturbeted energy.
         :param n: orbital number n (int)
-        :param k_B: (float)
         :param T: Current temperature (float)
         :param z: (int)
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
         alpha = sp.Symbol('alpha')  # proportional function
-        return alpha*QuantumFactory.get_g_n(n)*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(k_B*T))
+        g = QuantumFactory.get_g_n(n)
+        return alpha*g*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(const.k_B*T))
 
     @staticmethod
     def decay_number_ratio(n: int, n_prime: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
@@ -190,6 +190,22 @@ class QuantumFactory:
         N_i = QuantumFactory.decay_number(n, k_B, T, z, mu)
         N_j = QuantumFactory.decay_number(n_prime, k_B, T, z, mu)
         return (N_i/N_j).evalf()
+
+    @staticmethod
+    def intensity_of_the_beam(n: int, n_prime: int, T: float, z: int=const.Z_H, mu: float=const.mu_H):
+        transitions = Transitions(n, n_prime)
+        alpha = sp.Symbol('alpha')  # proportional function
+        omega = QuantumFactory.get_transition_angular_frequency_unperturbated(n, n_prime, z, mu)
+        N = QuantumFactory.decay_number(n, T, z, mu)
+        Rs_mean = transitions.get_spontanious_decay_mean(z, mu)
+        return alpha*N*omega*Rs_mean
+
+    @staticmethod
+    def ratio_intensity_of_the_beam(n: int, n_prime: int, i: int, j: int,
+                                    T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        I1 = QuantumFactory.intensity_of_the_beam(n, n_prime, T, z, mu)
+        I2 = QuantumFactory.intensity_of_the_beam(i, j, T, z, mu)
+        return (I1/I2).evalf()
 
 
 if __name__ == '__main__':

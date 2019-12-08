@@ -37,6 +37,9 @@ class Transition:
         """
         assert Transition.possible(self._initial_quantum_state, self._ending_quantum_state)
 
+    def get_n_to_n_prime_couple(self) -> tuple:
+        return self._initial_quantum_state.get_n(), self._ending_quantum_state.get_n()
+
     def __repr__(self) -> str:
         """
         show a representation of the current Transition
