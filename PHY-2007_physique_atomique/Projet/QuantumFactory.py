@@ -42,26 +42,15 @@ class QuantumFactory:
 
     @staticmethod
     def get_valid_ell_with_n(n: int):
-        return np.array([i for i in range(0, n)])
+        return np.array([i for i in np.arange(start=0, stop=n, step=1)])
 
     @staticmethod
     def get_valid_m_ell_with_ell(ell: int):
-        return np.array([i for i in range(-ell, ell+1)])
+        return np.array([i for i in np.arange(start=-ell, stop=ell+1, step=1)])
 
     @staticmethod
     def get_valid_m_s_with_s(s: float):
         return np.array([i for i in np.arange(start=-s, stop=s+1, step=1)])
-
-    @staticmethod
-    def get_valid_quantum_state_for_n(n, s_list: list = const.s_H) -> list:
-        from QuantumState import QuantumState
-        valid_states = list()
-        for ell in QuantumFactory.get_valid_ell_with_n(n):
-            for m_ell in QuantumFactory.get_valid_m_ell_with_ell(ell):
-                for s in s_list:
-                    for m_s in QuantumFactory.get_valid_m_s_with_s(s):
-                        valid_states.append(QuantumState(n, ell, m_ell, s, m_s))
-        return valid_states
 
     @staticmethod
     def get_valid_transitions_n_to_n(n, n_prime) -> list:
@@ -73,6 +62,8 @@ class QuantumFactory:
         """
         from Transition import Transition
         from Transitions import Transitions
+        import warnings
+        warnings.warn("Warning! This method seems to be not valid", DeprecationWarning)
         valid_transitions = Transitions()  # must be a Transitions object
         for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
             for end_quantum_state in init_quantum_state.get_valid_transitions_state_to_n(n_prime):
@@ -80,10 +71,44 @@ class QuantumFactory:
         return valid_transitions
 
     @staticmethod
+    def get_valid_transitions_n_to_n_prime(n: int, n_prime: int) -> list:
+        """
+        Get a Transitions(list) container of all of the valid transition of n to n_prime
+        :param n: (int)
+        :param n_prime: (int)
+        :return: Transitions(list) of Transition object of the initial state and final state (Transitions)
+        """
+        from Transition import Transition
+        from Transitions import Transitions
+        valid_transitions: Transitions = Transitions()
+        for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
+            for end_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n_prime):
+                if Transition.possible(init_quantum_state, end_quantum_state):
+                    valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
+        return valid_transitions
+
+    @staticmethod
+    def get_valid_quantum_state_for_n(n, s_array: np.ndarray = const.s_H) -> np.ndarray:
+        """
+        Get all the valid quantum state for the orbital number n
+        :param n: orbital number n (int)
+        :param s_array: array of possible spin number s (numpy.ndarray)
+        :return: array of valid quantum state (numpy.ndarray[QuantumState])
+        """
+        from QuantumState import QuantumState
+        valid_states: list = list()
+        for ell in QuantumFactory.get_valid_ell_with_n(n):
+            for m_ell in QuantumFactory.get_valid_m_ell_with_ell(ell):
+                for s in s_array:
+                    for m_s in QuantumFactory.get_valid_m_s_with_s(s):
+                        valid_states.append(QuantumState(n, ell, m_ell, s, m_s))
+        return np.array(valid_states)
+
+    @staticmethod
     def get_g_n(n: int) -> int:
         """
         Get the degenesrence number of the level n
-        :param n: orbital level
+        :param n: orbital level (int)
         :return: degenesrecence number (int)
         """
         deg_dico = dict()
@@ -113,9 +138,9 @@ class QuantumFactory:
                                        z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition energy without any pertubation
-        :param n:
-        :param n_prime:
-        :param z:
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param z: (float)
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
         """
@@ -128,9 +153,9 @@ class QuantumFactory:
                                                        z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition angular frequency without any pertubation
-        :param n:
-        :param n_prime:
-        :param z:
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param z: (float)
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
         """
@@ -139,6 +164,10 @@ class QuantumFactory:
 
 if __name__ == '__main__':
     from Transitions import Transitions
-    print(Transitions(3, 2))
-
-    print(QuantumFactory.get_transition_angular_frequency_unperturbated(4, 2, const.Z_H, const.mu_H))
+    n, n_prime = 4, 2
+    trans = Transitions(n, n_prime)
+    trans_prime = QuantumFactory.get_valid_transitions_n_to_n(n, n_prime)
+    print(len(trans), trans)
+    print(len(trans_prime), trans_prime)
+    print(str(trans) == str(trans_prime))
+    # print(QuantumFactory.get_transition_angular_frequency_unperturbated(4, 2, const.Z_H, const.mu_H))

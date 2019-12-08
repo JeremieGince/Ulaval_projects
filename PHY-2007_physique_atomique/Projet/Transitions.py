@@ -7,34 +7,72 @@ import tqdm
 
 class Transitions(list):
     def __init__(self, n: int = None, n_prime: int = None):
+        """
+        Transitions constructor. Transitions is a container of Transition object
+         that can calculate some stats on these transitions
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        """
         super().__init__()
-        assert (n is None and n_prime is None) or (isinstance(n, int) and isinstance(n, int))
-        self.append_transitions_n_to_n(n, n_prime)
-        self.spontanious_decay_mean = None
+        assert (n is None and n_prime is None) or (isinstance(n, int) and isinstance(n, int)),\
+            "params n and n_prime must be integer or None"
+        if isinstance(n, int) and isinstance(n, int):
+            self.append_transitions_n_to_n(n, n_prime)
+        self.spontanious_decay_mean: float = None
 
     def append(self, transition: Transition) -> None:
+        """
+        Add a transition in the current container
+        :param transition: Transition to be added (Transition)
+        :return: None
+        """
         super().append(transition)
 
-    def append_transitions_n_to_n(self, n, n_prime):
+    def append_transitions_n_to_n(self, n, n_prime) -> None:
+        """
+        Add all the possible transition between orbital number n and n_prime
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :return: None
+        """
         from QuantumFactory import QuantumFactory
-        for trans in QuantumFactory.get_valid_transitions_n_to_n(n, n_prime):
+        for trans in QuantumFactory.get_valid_transitions_n_to_n_prime(n, n_prime):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H):
+    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H) -> float:
+        """
+        Get mean of the spontanious decay rate of transitions in the current container
+        :param z: (int)
+        :param mu: redeced mass (float)
+        :return: mean spontanious decay rate (float)
+        """
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
-        rs_vector = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
-        print(rs_vector)
-        self.spontanious_decay_mean = np.mean(rs_vector)
+        rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+        self.spontanious_decay_mean: float = np.float(np.mean(rs_vector))
         return self.spontanious_decay_mean
 
     @staticmethod
-    def get_angular_frequency(n, n_prime, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def get_angular_frequency(n, n_prime, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)) -> float:
+        """
+        Get the angular frequency between two states using the unperturbeted energy.
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param z: (int)
+        :param mu: (float)
+        :return: angular frequency (float)
+        """
+        import warnings
+        warnings.warn("Warning! This method seems to be replicated and not efficient", DeprecationWarning)
         e = (- (z ** 2) * (const.alpha ** 2) * mu * (const.c ** 2))/(2 * (n ** 2))
         e_prime = (- (z ** 2) * (const.alpha ** 2) * mu * (const.c ** 2))/(2 * (n_prime ** 2))
         return (e - e_prime)/const.hbar
 
     def __repr__(self) -> str:
+        """
+        String representation of the current object
+        :return: string representation (str)
+        """
         this_repr = "[ "
         for trans in self:
             this_repr += f"{trans}, \n"
@@ -42,7 +80,7 @@ class Transitions(list):
         return this_repr
 
     def save(self):
-        raise NotImplemented()
+        raise NotImplemented("This method is not implemented yet")
 
 
 if __name__ == '__main__':
