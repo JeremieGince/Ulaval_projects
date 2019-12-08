@@ -108,7 +108,8 @@ class QuantumFactory:
         return numerator/denumerator
 
     @staticmethod
-    def get_delta_energy_unpertuberted(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_delta_energy_unpertuberted(n: int, n_prime: int,
+                                       z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition energy without any pertubation
         :param n:
@@ -122,11 +123,12 @@ class QuantumFactory:
         return e - e_prime
 
     @staticmethod
-    def get_transition_angular_frequency_unperturbated(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_transition_angular_frequency_unperturbated(n: int, n_prime: int,
+                                                       z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition angular frequency without any pertubation
         :param n:
-        :param n_prime: 
+        :param n_prime:
         :param z:
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
