@@ -111,6 +111,8 @@ class QuantumFactory:
     def get_delta_energy_unpertuberted(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition energy without any pertubation
+        :param n:
+        :param n_prime:
         :param z:
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
@@ -123,6 +125,8 @@ class QuantumFactory:
     def get_transition_angular_frequency_unperturbated(n: int, n_prime: int, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition angular frequency without any pertubation
+        :param n:
+        :param n_prime: 
         :param z:
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
