@@ -1,6 +1,9 @@
 import Constantes as const
 import numpy as np
 import sympy as sp
+import mpmath
+import scipy as sc
+from scipy import integrate
 
 
 class QuantumFactory:
@@ -219,13 +222,58 @@ class QuantumFactory:
         I2 = QuantumFactory.intensity_of_the_beam(i, j, T, z, mu)
         return (I1/I2).evalf()
 
+    @staticmethod
+    def bracket_product(wave_function, wave_function_prime, operator=None, algo="scipy"):
+        algos = {"sympy": QuantumFactory.bracket_product_sympy,
+                 "scipy":QuantumFactory.bracket_product_scipy}
+        assert algo in algos.keys()
+        return algos[algo](wave_function, wave_function_prime, operator)
+
+
+    @staticmethod
+    def bracket_product_sympy(wave_function, wave_function_prime, operator=None):
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        jacobian = (r**2) * sp.sin(theta)
+        integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
+        integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
+
+        # creation of the Integral object and first try to resolve it
+        bracket_product = sp.Integral(integral_core_expension,
+                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi))
+        # print(f"\n Integral bracket_product: {bracket_product}")
+
+        # simplify the result of the first try and evaluation of the integral, last attempt
+        bracket_product = bracket_product.simplify().evalf(n=50, maxn=3_000, strict=True)
+        return bracket_product
+
+    @staticmethod
+    def bracket_product_scipy(wave_function, wave_function_prime, operator=None):
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        jacobian = (r ** 2) * sp.sin(theta)
+        integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
+
+        integral_core_expension = sp.expand(sp.FU["TR8"](jacobian*integral_core), func=True).simplify()
+
+        def bound_r(_):
+            return [0, mpmath.inf]
+
+        def bound_phi(_, __):
+            return [0, 2 * mpmath.pi]
+
+        def bound_theta():
+            return [0, mpmath.pi]
+
+        # Process the integral with scipy
+        integral_core_lambdify = sp.lambdify((theta, r, phi), integral_core_expension, modules="numpy")
+        bracket_product = sc.integrate.nquad(integral_core_lambdify, [bound_phi, bound_r, bound_theta])[0]
+        return bracket_product
+
 
 if __name__ == '__main__':
     from Transitions import Transitions
-    n, n_prime = 4, 2
-    trans = Transitions(n, n_prime)
-    trans_prime = QuantumFactory.get_valid_transitions_n_to_n(n, n_prime)
-    print(len(trans), trans)
-    print(len(trans_prime), trans_prime)
-    print(str(trans) == str(trans_prime))
-    # print(QuantumFactory.get_transition_angular_frequency_unperturbated(4, 2, const.Z_H, const.mu_H))
+    from QuantumState import QuantumState
+
+    qs1 = QuantumState(n=2, ell=1, m_ell=0, s=0.5, m_s=0.5)
+    qs2 = QuantumState(n=1, ell=0, m_ell=0, s=0.5, m_s=0.5)
+
+    print(QuantumFactory.bracket_product(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H), qs2.get_wave_fonction(z=const.Z_H, mu=const.mu_H)))

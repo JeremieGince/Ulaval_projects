@@ -8,6 +8,7 @@ from sympy.utilities.lambdify import lambdastr
 import mpmath
 import scipy as sc
 from scipy import integrate
+from QuantumFactory import QuantumFactory
 
 
 class Transition:
@@ -76,6 +77,44 @@ class Transition:
             self.spontanious_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
             return self.spontanious_decay_rate
 
+        return self.get_spontanious_decay_rate_scipy(z, mu)
+
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        coeff = (4*const.alpha*(self.get_delta_energy(z, mu)**3))/(3*(const.hbar**3)*(const.c**2))
+        psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
+        psi_prime = sp.FU['TR8'](self._ending_quantum_state.get_wave_fonction(z, mu))
+
+        # print(f"\n psi: {psi} \n psi_prime: {psi_prime} \n")
+        # \Vec{r} = x + y + z
+        r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
+
+        # creation of the Integral object and first try to resolve it
+        bracket_product = QuantumFactory.bracket_product_sympy(psi, psi_prime, r_operator)
+
+        bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
+        # print(bracket_product_norm_square)
+
+        self.spontanious_decay_rate = sp.Float(coeff * bracket_product_norm_square)
+
+        # updating Transition static attribute
+        Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()] = self.spontanious_decay_rate
+        return self.spontanious_decay_rate
+
+    # @numba.jit
+    def get_spontanious_decay_rate_scipy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+        """
+        Get the spontanious decay rate of the transition
+        :param z: (int)
+        :param mu: reduced mass (float)
+        :return: the spontanious decay rate (float)
+        """
+        # check if spontanious_decay_rate is already calculated
+        if self.spontanious_decay_rate is not None:
+            return self.spontanious_decay_rate
+        elif self.repr_without_spin() in Transition.n_ell_m_ell_state_to_rs.keys():
+            self.spontanious_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
+            return self.spontanious_decay_rate
+
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         coeff = (4*const.alpha*(self.get_delta_energy(z, mu)**3))/(3*(const.hbar**3)*(const.c**2))
         psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
@@ -83,34 +122,12 @@ class Transition:
 
         # print(f"\n psi: {psi} \n psi_prime: {psi_prime} \n")
 
-        integral_core = (r**3)*sp.FU['TR8'](sp.sin(theta)*sp.cos(theta))*sp.conjugate(psi)*psi_prime
-        # print(f"\n integral_core: {integral_core} \n {sp.FU['TR0'](sp.expand(integral_core, func=True))}")
+        # \Vec{r} = x + y + z
+        r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
 
-        # print(sp.lambdify((theta, r, phi), integral_core, modules="numpy"))
-        print(lambdastr((theta, r, phi), integral_core))
-
-        def bound_r(_):
-            return [0, mpmath.inf]
-
-        def bound_phi(_, __):
-            return [0, 2*mpmath.pi]
-
-        def bound_theta():
-            return [0, mpmath.pi]
-
-        bracket_product = sc.integrate.nquad(sp.lambdify((theta, r, phi), integral_core, modules="numpy"), [bound_phi, bound_r, bound_theta])[0]
+        # Process the integral with scipy
+        bracket_product = QuantumFactory.bracket_product_scipy(psi, psi_prime, r_operator)
         # print(bracket_product)
-        # print('-'*75)
-        # raise NotImplemented
-
-        # creation of the Integral object and first try to resolve it
-        # bracket_product = sp.Integral(sp.expand(integral_core, func=True).simplify(),
-        #                               (phi, 0, 2*mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi))
-        # # print(f"\n Integral bracket_product: {bracket_product}")
-        #
-        # # simplify the result of the first try and evaluation of the integral, last attempt
-        # bracket_product = sp.FU['TR0'](bracket_product).evalf(n=50, maxn=1_000, strict=True)
-        # print(f"\n bracket_product: {bracket_product}")
 
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)
@@ -188,7 +205,16 @@ if __name__ == '__main__':
     rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H) / rs_mean_normalized_coeff
     reel_rs_normalized = 0.002746686
     print(f"Transition: {trans}")
-    print(f"R^s = {rs_normalized}")
+    print(f"R^s sympy = {rs_normalized}")
     print(f"reel R^s = {reel_rs_normalized},"
           f" deviation: {100*(np.abs(rs_normalized-reel_rs_normalized)/reel_rs_normalized)} %")
     print('-'*175+f'\n elapse time: {time.time()-start_time}')
+
+    trans.spontanious_decay_rate = None
+    Transition.n_ell_m_ell_state_to_rs = dict()
+    rs_normalized = trans.get_spontanious_decay_rate_scipy(z=const.Z_H, mu=const.mu_H) / rs_mean_normalized_coeff
+    print(f"Transition: {trans}")
+    print(f"R^s scipy = {rs_normalized}")
+    print(f"reel R^s = {reel_rs_normalized},"
+          f" deviation: {100 * (np.abs(rs_normalized - reel_rs_normalized) / reel_rs_normalized)} %")
+    print('-' * 175 + f'\n elapse time: {time.time() - start_time}')
