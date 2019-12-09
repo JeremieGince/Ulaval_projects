@@ -54,6 +54,7 @@ class QuantumFactory:
         from sympy.functions.special.spherical_harmonics import Ynm
         theta, phi = sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         return sp.FU['TR8'](Ynm(ell, m_ell, theta, phi).expand(func=True))
+        # return Ynm(ell, m_ell, theta, phi)
 
     @staticmethod
     def get_valid_ell_with_n(n: int):
@@ -235,11 +236,12 @@ class QuantumFactory:
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r**2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
-        integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
+        # integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
+        integral_core_expension = sp.expand(sp.FU["TR8"](jacobian*integral_core), func=True).simplify()
 
         # creation of the Integral object and first try to resolve it
         bracket_product = sp.Integral(integral_core_expension,
-                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi))
+                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi)).doit()
         # print(f"\n Integral bracket_product: {bracket_product}")
 
         # simplify the result of the first try and evaluation of the integral, last attempt
@@ -273,7 +275,15 @@ if __name__ == '__main__':
     from Transitions import Transitions
     from QuantumState import QuantumState
 
-    qs1 = QuantumState(n=2, ell=1, m_ell=0, s=0.5, m_s=0.5)
+    qs1 = QuantumState(n=2, ell=1, m_ell=1, s=0.5, m_s=0.5)
     qs2 = QuantumState(n=1, ell=0, m_ell=0, s=0.5, m_s=0.5)
 
+    y1 = QuantumFactory.Y_ell_m_ell(3, 1)
+    y2 = QuantumFactory.Y_ell_m_ell(2, 1)
+
+    print(sp.conjugate(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True)), qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True))
+
     print(QuantumFactory.bracket_product(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H), qs2.get_wave_fonction(z=const.Z_H, mu=const.mu_H)))
+    print(QuantumFactory.bracket_product(y1, y1, algo="sympy"))
+    print(QuantumFactory.bracket_product(y1, y2))
+    print(QuantumFactory.bracket_product(y2, y2))
