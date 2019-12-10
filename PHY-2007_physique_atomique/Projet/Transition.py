@@ -62,46 +62,7 @@ class Transition:
                     f"-> {self._ending_quantum_state.repr_without_spin()})"
         return this_repr
 
-    # @numba.jit
-    def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
-        """
-        Get the spontanious decay rate of the transition
-        :param z: (int)
-        :param mu: reduced mass (float)
-        :return: the spontanious decay rate (float)
-        """
-        # check if spontanious_decay_rate is already calculated
-        if self.spontanious_decay_rate is not None:
-            return self.spontanious_decay_rate
-        elif self.repr_without_spin() in Transition.n_ell_m_ell_state_to_rs.keys():
-            self.spontanious_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
-            return self.spontanious_decay_rate
-
-        return self.get_spontanious_decay_rate_scipy(z, mu)
-
-        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        coeff = (4*const.alpha*(self.get_delta_energy(z, mu)**3))/(3*(const.hbar**3)*(const.c**2))
-        psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
-        psi_prime = sp.FU['TR8'](self._ending_quantum_state.get_wave_fonction(z, mu))
-
-        # print(f"\n psi: {psi} \n psi_prime: {psi_prime} \n")
-        # \Vec{r} = x + y + z
-        r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
-
-        # creation of the Integral object and first try to resolve it
-        bracket_product = QuantumFactory.bracket_product_sympy(psi, psi_prime, r_operator)
-
-        bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
-        # print(bracket_product_norm_square)
-
-        self.spontanious_decay_rate = sp.Float(coeff * bracket_product_norm_square)
-
-        # updating Transition static attribute
-        Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()] = self.spontanious_decay_rate
-        return self.spontanious_decay_rate
-
-    # @numba.jit
-    def get_spontanious_decay_rate_scipy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True), algo="mcint"):
         """
         Get the spontanious decay rate of the transition
         :param z: (int)
@@ -126,7 +87,7 @@ class Transition:
         r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
 
         # Process the integral with scipy
-        bracket_product = QuantumFactory.bracket_product_scipy(psi, psi_prime, r_operator)
+        bracket_product = QuantumFactory.bracket_product(psi, psi_prime, r_operator, algo)
         # print(bracket_product)
 
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
@@ -202,19 +163,23 @@ if __name__ == '__main__':
     omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2 * const.hbar)
 
     trans = Transition(qs1, qs2)
-    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H) / rs_mean_normalized_coeff
+
+    print('-' * 175)
+    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="sympy") / rs_mean_normalized_coeff
     reel_rs_normalized = 0.002746686
     print(f"Transition: {trans}")
     print(f"R^s sympy = {rs_normalized}")
     print(f"reel R^s = {reel_rs_normalized},"
-          f" deviation: {100*(np.abs(rs_normalized-reel_rs_normalized)/reel_rs_normalized)} %")
+          f" deviation: {100*(np.abs(rs_normalized-reel_rs_normalized))} %")
     print('-'*175+f'\n elapse time: {time.time()-start_time}')
+
+    start_time = time.time()
 
     trans.spontanious_decay_rate = None
     Transition.n_ell_m_ell_state_to_rs = dict()
-    rs_normalized = trans.get_spontanious_decay_rate_scipy(z=const.Z_H, mu=const.mu_H) / rs_mean_normalized_coeff
+    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="mcint") / rs_mean_normalized_coeff
     print(f"Transition: {trans}")
     print(f"R^s scipy = {rs_normalized}")
     print(f"reel R^s = {reel_rs_normalized},"
-          f" deviation: {100 * (np.abs(rs_normalized - reel_rs_normalized) / reel_rs_normalized)} %")
+          f" deviation: {100 * (np.abs(rs_normalized - reel_rs_normalized))} %")
     print('-' * 175 + f'\n elapse time: {time.time() - start_time}')
