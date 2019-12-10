@@ -4,6 +4,11 @@ import sympy as sp
 import mpmath
 import scipy as sc
 from scipy import integrate
+import mcint
+import random
+import itertools
+import numba
+from numba import cuda, prange
 
 
 class QuantumFactory:
@@ -53,8 +58,13 @@ class QuantumFactory:
         """
         from sympy.functions.special.spherical_harmonics import Ynm
         theta, phi = sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        return sp.FU['TR8'](Ynm(ell, m_ell, theta, phi).expand(func=True))
+        # return sp.FU['TR8'](Ynm(ell, m_ell, theta, phi).expand(func=True))
         # return Ynm(ell, m_ell, theta, phi)
+        return Ynm(ell, m_ell, theta, phi).expand(func=True)
+
+    @staticmethod
+    def Y_ell_m_ell_scipy(ell, m_ell):
+        pass
 
     @staticmethod
     def get_valid_ell_with_n(n: int):
@@ -224,32 +234,46 @@ class QuantumFactory:
         return (I1/I2).evalf()
 
     @staticmethod
-    def bracket_product(wave_function, wave_function_prime, operator=None, algo="scipy"):
+    def bracket_product(wave_function, wave_function_prime, operator=None, algo="mcint"):
+        """
+
+        :param wave_function:
+        :param wave_function_prime:
+        :param operator:
+        :param algo:
+        :return:
+        """
         algos = {"sympy": QuantumFactory.bracket_product_sympy,
-                 "scipy":QuantumFactory.bracket_product_scipy}
+                 "scipy_nquad": QuantumFactory.bracket_product_scipy_nquad,
+                 "scipy_tplquad": QuantumFactory.bracket_product_scipy_tplquad,
+                 "mcint": QuantumFactory.bracket_product_mcint}
         assert algo in algos.keys()
         return algos[algo](wave_function, wave_function_prime, operator)
 
-
     @staticmethod
     def bracket_product_sympy(wave_function, wave_function_prime, operator=None):
+        """
+
+        :param wave_function:
+        :param wave_function_prime:
+        :param operator:
+        :return:
+        """
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r**2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
-        # integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
         integral_core_expension = sp.expand(sp.FU["TR8"](jacobian*integral_core), func=True).simplify()
 
         # creation of the Integral object and first try to resolve it
         bracket_product = sp.Integral(integral_core_expension,
                                       (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi)).doit()
-        # print(f"\n Integral bracket_product: {bracket_product}")
 
         # simplify the result of the first try and evaluation of the integral, last attempt
         bracket_product = bracket_product.simplify().evalf(n=50, maxn=3_000, strict=True)
         return bracket_product
 
     @staticmethod
-    def bracket_product_scipy(wave_function, wave_function_prime, operator=None):
+    def bracket_product_scipy_nquad(wave_function, wave_function_prime, operator=None):
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r ** 2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
@@ -267,8 +291,130 @@ class QuantumFactory:
 
         # Process the integral with scipy
         integral_core_lambdify = sp.lambdify((theta, r, phi), integral_core_expension, modules="numpy")
-        bracket_product = sc.integrate.nquad(integral_core_lambdify, [bound_phi, bound_r, bound_theta])[0]
+        bracket_product = QuantumFactory.complex_quadrature(sc.integrate.nquad, integral_core_lambdify, [bound_phi, bound_r, bound_theta])[0]
         return bracket_product
+
+    @staticmethod
+    def bracket_product_scipy_tplquad(wave_function, wave_function_prime, operator=None):
+        from sympy.utilities.lambdify import lambdastr
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        jacobian = (r ** 2) * sp.sin(theta)
+        integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
+
+        # integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
+        integral_core_expension = sp.expand(jacobian * integral_core, func=True).simplify()
+
+        # Process the integral with scipy
+        integral_core_lambdify = sp.lambdify((theta, r, phi), integral_core_expension, modules="numpy")
+        print(lambdastr((theta, r, phi), integral_core_expension))
+        bracket_product = QuantumFactory.complex_quadrature(sc.integrate.tplquad, integral_core_lambdify,
+                                                            0, 2*np.pi, lambda b_phi: 0, lambda b_phi: np.inf,
+                                                            lambda b_theta, b_r: 0, lambda b_theta, b_r: np.pi)[0]
+        # bracket_product = sc.integrate.tplquad(integral_core_lambdify,
+        #                                        0, 2 * np.pi, lambda b_phi: 0, lambda b_phi: np.inf,
+        #                                        lambda b_theta, b_r: 0, lambda b_theta, b_r: np.pi)[0]
+        return bracket_product
+
+    @staticmethod
+    def complex_quadrature(integrate_func, func, *args, **kwargs):
+        """
+
+        :param integrate_func:
+        :param func:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        def real_func(x, y, z):
+            return sc.real(func(x, y, z))
+
+        def imag_func(x, y, z):
+            return sc.imag(func(x, y, z))
+
+        real_integral = integrate_func(real_func, *args, **kwargs)
+        imag_integral = integrate_func(imag_func, *args, **kwargs)
+        return real_integral[0] + 1j * imag_integral[0], real_integral[1:], imag_integral[1:]
+
+    @staticmethod
+    def bracket_product_mcint(wave_function, wave_function_prime, operator=None):
+        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        jacobian = (r ** 2) * sp.sin(theta)
+        integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
+
+        # integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
+        integral_core_expension = sp.expand(jacobian * integral_core, func=True).simplify()
+
+        integral_core_lambdify = sp.lambdify((theta, r, phi), integral_core_expension, modules="numpy")
+
+        def integrand(x):
+            theta, r, phi = x[0], x[1], x[2]
+            return integral_core_lambdify(theta, r, phi)
+
+        domainsize = (0, 1)
+        result = QuantumFactory.monte_carlo_integration_sph(integrand, [[0, 1.15], [0, np.pi], [0, 2 * np.pi]], domainsize, 1_000_000)
+        return result
+
+    @staticmethod
+    def monte_carlo_integration(integrand, bornes: list, domainsize=(0.0, 1.0), n_sample: int = int(1e6)):
+        np.random.seed(1)
+        # Sum elements and elements squared
+        total = 0.0
+        total_sq = 0.0
+        count_in_curve = 0
+
+        def sampler():
+            while True:
+                yield [np.random.uniform(b0, b1) for [b0, b1] in bornes]
+
+        for x in itertools.islice(sampler(), n_sample):
+            f = integrand(x)
+            f_rn = np.random.uniform(domainsize[0], domainsize[1])
+            total += f
+            total_sq += (f ** 2)
+            count_in_curve += 1 if 0 <= f_rn <= f else 0
+        # Return answer
+        # sample_mean = total / n_sample
+        # sample_var = (total_sq - ((total / n_sample) ** 2) / n_sample) / (n_sample - 1.0)
+        # return domainsize * sample_mean, domainsize * np.sqrt(sample_var / n_sample)
+        v = np.prod([b1-b0 for [b0, b1] in bornes]) * (domainsize[1] - domainsize[0])
+        print(100*(count_in_curve/n_sample), "%")
+        return (count_in_curve/n_sample) * v
+
+    @staticmethod
+    def monte_carlo_integration_sph(integrand, bornes: list, domainsize=(0.0, 1.0), n_sample: int = int(1e6)):
+        # np.random.seed(1)
+        # Sum elements and elements squared
+
+        # def sampler():
+        #     while True:
+        #         yield [np.random.uniform(b0, b1) for [b0, b1] in bornes]
+
+        samples = np.array([[np.random.uniform(b0, b1) for [b0, b1] in bornes] for _ in range(n_sample)])
+        # f_samples = np.array([np.random.uniform(domainsize[0], domainsize[1]) for _ in range(n_sample)])
+        # for x in itertools.islice(sampler(), n_sample):
+        # f_values = integrand(samples)
+        # @numba.generated_jit(nopython=True)
+        def loop():
+            count: int = int(0)
+            for i in prange(len(samples)):
+                f = integrand(samples[i])
+                # f = f_values[i]
+                f_rn = np.random.uniform(domainsize[0], domainsize[1])
+                # if (f > 0 and 0 <= f_samples[i] <= f) or (f < 0 and f <= f_samples[i] <= 0):
+                if (f > 0 and 0 <= f_rn <= f) or (f < 0 and f <= f_rn <= 0):
+                    count += 1
+            return count
+
+        count_in_curve = loop()
+        # Return answer
+        # sample_mean = total / n_sample
+        # sample_var = (total_sq - ((total / n_sample) ** 2) / n_sample) / (n_sample - 1.0)
+        # return domainsize * sample_mean, domainsize * np.sqrt(sample_var / n_sample)
+        # v = ((4*np.pi*(bornes[0][1] - bornes[0][0])**3)/3) * (domainsize[1] - domainsize[0])
+        # print(sp.integrate((4/3)*sp.pi*sp.Symbol('r')**3, (sp.Symbol('z'), domainsize[0], domainsize[1])))
+        v = sp.integrate((4/3)*sp.pi*sp.Symbol('r')**3, (sp.Symbol('z'), domainsize[0], domainsize[1])).evalf(subs={'r': bornes[0][1] - bornes[0][0]})
+        # print(100 * (count_in_curve / n_sample), "%")
+        return (count_in_curve / n_sample) * v
 
 
 if __name__ == '__main__':
@@ -278,12 +424,17 @@ if __name__ == '__main__':
     qs1 = QuantumState(n=2, ell=1, m_ell=1, s=0.5, m_s=0.5)
     qs2 = QuantumState(n=1, ell=0, m_ell=0, s=0.5, m_s=0.5)
 
-    y1 = QuantumFactory.Y_ell_m_ell(3, 1)
+    y1 = QuantumFactory.Y_ell_m_ell(3, 2)
     y2 = QuantumFactory.Y_ell_m_ell(2, 1)
 
-    print(sp.conjugate(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True)), qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True))
+    # def ylm(ell, m_ell):
+    #     from scipy.special import sph_harm as ynm
+    #     return ynm(ell, m_ell)
 
-    print(QuantumFactory.bracket_product(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H), qs2.get_wave_fonction(z=const.Z_H, mu=const.mu_H)))
-    print(QuantumFactory.bracket_product(y1, y1, algo="sympy"))
+    # print(sp.conjugate(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True)), qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H).expand(func=True))
+    #
+    # print(QuantumFactory.bracket_product(qs1.get_wave_fonction(z=const.Z_H, mu=const.mu_H), qs2.get_wave_fonction(z=const.Z_H, mu=const.mu_H)))
+    print(QuantumFactory.bracket_product(y1, y1))
     print(QuantumFactory.bracket_product(y1, y2))
     print(QuantumFactory.bracket_product(y2, y2))
+
