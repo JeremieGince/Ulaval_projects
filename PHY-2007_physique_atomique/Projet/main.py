@@ -43,6 +43,14 @@ def tab_cell(n, n_prime):
 
 
 if __name__ == '__main__':
+    problem_variable = {
+        "theta": np.pi/4,  # [rad]
+        "a": 2e-2,  # [m]
+        "L": 50e-2,  # [m]
+        "B": 1.4580,
+        "C": 0.00354e-6,  # [m^2]
+        "T": 1_000,  # [K]
+    }
     couples = [(3, 2), (4, 2), (5, 2), (6, 2)]
     # Problem 2.a
     for couple in couples:
@@ -50,4 +58,4 @@ if __name__ == '__main__':
 
     # Problem 2.b
     for couple in couples:
-        QuantumFactory.ratio_intensity_of_the_beam(couple[0], couple[1], 4, 2, T=1_000)
+        QuantumFactory.ratio_intensity_of_the_beam(couple[0], couple[1], 4, 2, T=problem_variable["T"])
