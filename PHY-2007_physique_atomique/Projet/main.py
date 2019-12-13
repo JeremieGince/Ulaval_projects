@@ -2,6 +2,7 @@ from Transitions import Transitions
 from QuantumFactory import QuantumFactory
 import Constants as const
 import numpy as np
+import time
 
 
 def tab_cell(n, n_prime):
@@ -51,11 +52,19 @@ if __name__ == '__main__':
         "C": 0.00354e-6,  # [m^2]
         "T": 1_000,  # [K]
     }
-    couples = [(3, 2), (4, 2), (5, 2), (6, 2)]
+    # couples = [(3, 2), (4, 2), (5, 2), (6, 2)]
+    couples = [(3, 2), (4, 2)]
+
+    start_time = time.time()
+
     # Problem 2.a
     for couple in couples:
         tab_cell(couple[0], couple[1])
 
     # Problem 2.b
     for couple in couples:
-        QuantumFactory.ratio_intensity_of_the_beam(couple[0], couple[1], 4, 2, T=problem_variable["T"])
+        relative_intensity = QuantumFactory.relative_intensity_of_the_beam(couple[0], couple[1],
+                                                                           4, 2, T=problem_variable["T"])
+        print(f" I_{couple} / I_(4, 2) = {relative_intensity:.5f}")
+
+    print(f"--- elapse time : {time.time() - start_time} s ---")
