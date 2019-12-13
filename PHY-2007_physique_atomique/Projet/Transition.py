@@ -1,5 +1,5 @@
 from QuantumState import QuantumState
-import Constantes as const
+import Constants as const
 import sympy as sp
 import numpy as np
 import numba

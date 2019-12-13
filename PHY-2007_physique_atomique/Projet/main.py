@@ -1,6 +1,6 @@
 from Transitions import Transitions
 from QuantumFactory import QuantumFactory
-import Constantes as const
+import Constants as const
 import numpy as np
 
 

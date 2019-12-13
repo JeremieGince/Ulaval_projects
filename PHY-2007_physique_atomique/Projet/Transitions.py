@@ -1,5 +1,5 @@
 from Transition import Transition
-import Constantes as const
+import Constants as const
 import numpy as np
 import sympy as sp
 import tqdm
