@@ -213,9 +213,8 @@ class QuantumFactory:
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
-        alpha = sp.Symbol('alpha')  # proportional function
         g = QuantumFactory.get_g_n(n)
-        return alpha*g*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(const.k_B*T))
+        return g*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(const.k_B*T))
 
     @staticmethod
     def decay_number_ratio(n: int, n_prime: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
@@ -256,8 +255,9 @@ class QuantumFactory:
         :param wave_function: bra
         :param wave_function_prime: ket
         :param operator: operator
-        :param algo: algo to use to compute the integral (str) element of {sympy, sympy_ns, scipy_nquad, scipy_tplquad, mcint}
-        :return:
+        :param algo: algo to use to compute the integral (str) element of
+                     {sympy, sympy_ns, scipy_nquad, scipy_tplquad, mcint}
+        :return: the result of algo(wave_function, wave_function_prime, operator)
         """
         algos = {"sympy": QuantumFactory.bracket_product_sympy,
                  "sympy_ns": QuantumFactory.bracket_product_sympy_ns,
@@ -293,7 +293,7 @@ class QuantumFactory:
     @staticmethod
     def bracket_product_sympy_ns(wave_function, wave_function_prime, operator=None):
         """
-
+        Compute the scalar product <bra|operator|ket> without simplification to use the symbolic integration of sympy
         :param wave_function: bra
         :param wave_function_prime: ket
         :param operator: operator
@@ -305,7 +305,7 @@ class QuantumFactory:
         integral_core = wave_function * (operator if operator is not None else 1) * sp.conjugate(wave_function_prime)
 
         # creation of the Integral object and first try to resolve it
-        bracket_product = sp.integrate(sp.nsimplify(jacobian*integral_core),
+        bracket_product = sp.integrate(jacobian*integral_core,
                                        (phi, 0, 2 * np.pi), (r, 0, np.inf), (theta, 0, np.pi),
                                        risch=False)
 

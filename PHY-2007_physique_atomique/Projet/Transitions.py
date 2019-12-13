@@ -87,7 +87,7 @@ class Transitions(list):
             couple_set.add(trans.get_n_to_n_prime_couple())
         return couple_set
 
-    def intensity_of_the_beam(self, T: float, z: int=const.Z_H, mu: float=const.mu_H) -> np.ndarray:
+    def intensity_of_the_beam(self, T: float, z: int = const.Z_H, mu: float = const.mu_H) -> np.ndarray:
         from QuantumFactory import QuantumFactory
         I: list = list()
         alpha = sp.Symbol('alpha')  # proportional function
@@ -98,8 +98,7 @@ class Transitions(list):
             I.append(alpha*N*omega*Rs_mean)
         return np.array(I)
 
-    def ratio_of_the_beam(self, T: float, z: int=const.Z_H, mu: float=const.mu_H):
-        raise NotImplemented()
+    def relative_intensity_of_the_beam(self, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         I_ratio: list = list()
         for couple in self.get_n_to_n_prime_couple():
             I_ratio.append(self.intensity_of_the_beam(T, z, mu))
@@ -109,20 +108,8 @@ class Transitions(list):
 
 
 if __name__ == '__main__':
-    rs_mean_normalized_coeff = ((const.alpha ** 5) * const.mu_H * (const.c ** 2)) / const.hbar
-    omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2 * const.hbar)
-
     n, n_prime = 6, 2
 
     transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime, hydrogen=True)
     print(transitions_n_to_n_prime)
 
-    transitions_n_to_n_prime_rs_mean = transitions_n_to_n_prime.get_spontanious_decay_mean() / rs_mean_normalized_coeff
-    print(f"R^s_mean / rs_mean_normalized_coeff  ="
-          f" {transitions_n_to_n_prime_rs_mean}")
-    reel_rs_3_to_2_mean = 0.000060611
-    print(f"reel R^s = {reel_rs_3_to_2_mean},"
-          f" deviation: {100 * (np.abs(transitions_n_to_n_prime_rs_mean - reel_rs_3_to_2_mean) / rs_mean_normalized_coeff)} %")
-
-    print(f"omega / omega_normalized_coeff  ="
-          f" {transitions_n_to_n_prime.get_angular_frequency(3, 2, const.Z_H, const.mu_H) / omega_normalized_coeff}")

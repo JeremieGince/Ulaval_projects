@@ -163,13 +163,13 @@ if __name__ == '__main__':
     print(f"psi_1{qs1} = {qs1.get_wave_fonction()}")
     print(f"psi_2{qs2} = {qs2.get_wave_fonction()}")
 
-    rs_mean_normalized_coeff = ((const.alpha ** 5) * const.mu_H * (const.c ** 2)) / const.hbar
+    rs_mean_norm_coeff = ((const.alpha ** 5) * (const.c ** 2) * const.mu_H) / const.hbar
     omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2 * const.hbar)
 
     trans = Transition(qs1, qs2)
 
     print('-' * 175)
-    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="auto") / rs_mean_normalized_coeff
+    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="auto") / rs_mean_norm_coeff
     reel_rs_normalized = 0.002746686
     print(f"Transition: {trans}")
     print(f"R^s sympy = {rs_normalized}")
