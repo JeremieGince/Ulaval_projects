@@ -234,6 +234,7 @@ class QuantumFactory:
 
     @staticmethod
     def intensity_of_the_beam(n: int, n_prime: int, T: float, z: int=const.Z_H, mu: float=const.mu_H):
+        from Transitions import Transitions
         transitions = Transitions(n, n_prime)
         alpha = sp.Symbol('alpha')  # proportional function
         omega = QuantumFactory.get_transition_angular_frequency_unperturbated(n, n_prime, z, mu)
@@ -242,8 +243,8 @@ class QuantumFactory:
         return alpha*N*omega*Rs_mean
 
     @staticmethod
-    def ratio_intensity_of_the_beam(n: int, n_prime: int, i: int, j: int,
-                                    T: float, z: int = const.Z_H, mu: float = const.mu_H):
+    def relative_intensity_of_the_beam(n: int, n_prime: int, i: int, j: int,
+                                       T: float, z: int = const.Z_H, mu: float = const.mu_H):
         I1 = QuantumFactory.intensity_of_the_beam(n, n_prime, T, z, mu)
         I2 = QuantumFactory.intensity_of_the_beam(i, j, T, z, mu)
         return (I1/I2).evalf()
