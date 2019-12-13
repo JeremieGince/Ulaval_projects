@@ -41,16 +41,22 @@ class Transitions(list):
         for trans in QuantumFactory.get_valid_transitions_n_to_n_prime(n, n_prime, hydrogen=hydrogen):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H) -> float:
+    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H, verbose: bool = False) -> float:
         """
         Get mean of the spontanious decay rate of transitions in the current container
         :param z: (int)
         :param mu: redeced mass (float)
+        :param verbose: if True, will show elapse time (bool)
         :return: mean spontanious decay rate (float)
         """
         if self.spontanious_decay_mean is not None:
             return self.spontanious_decay_mean
-        rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+
+        if verbose:
+            rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+        else:
+            rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in self])
+
         self.spontanious_decay_mean: float = np.float(np.mean(rs_vector))
         return self.spontanious_decay_mean
 
