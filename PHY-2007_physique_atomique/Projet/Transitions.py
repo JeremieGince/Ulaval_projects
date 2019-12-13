@@ -6,18 +6,19 @@ import tqdm
 
 
 class Transitions(list):
-    def __init__(self, n: int = None, n_prime: int = None):
+    def __init__(self, n: int = None, n_prime: int = None, hydrogen: bool = False):
         """
         Transitions constructor. Transitions is a container of Transition object
          that can calculate some stats on these transitions
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
+        :param hydrogen : if the current container of quantum states refer to hydrogen atoms (bool)
         """
         super().__init__()
         assert (n is None and n_prime is None) or (isinstance(n, int) and isinstance(n, int)),\
             "params n and n_prime must be integer or None"
         if isinstance(n, int) and isinstance(n, int):
-            self.append_transitions_n_to_n(n, n_prime)
+            self.append_transitions_n_to_n(n, n_prime, hydrogen=hydrogen)
         self.spontanious_decay_mean: float = None
 
     def append(self, transition: Transition) -> None:
@@ -28,15 +29,16 @@ class Transitions(list):
         """
         super().append(transition)
 
-    def append_transitions_n_to_n(self, n, n_prime) -> None:
+    def append_transitions_n_to_n(self, n, n_prime, hydrogen: bool = False) -> None:
         """
         Add all the possible transition between orbital number n and n_prime
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
+        :param hydrogen: if we want to cast quantum state in quantum hydrogen state (bool)
         :return: None
         """
         from QuantumFactory import QuantumFactory
-        for trans in QuantumFactory.get_valid_transitions_n_to_n_prime(n, n_prime):
+        for trans in QuantumFactory.get_valid_transitions_n_to_n_prime(n, n_prime, hydrogen=hydrogen):
             self.append(trans)
 
     def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H) -> float:
@@ -107,4 +109,20 @@ class Transitions(list):
 
 
 if __name__ == '__main__':
-    pass
+    rs_mean_normalized_coeff = ((const.alpha ** 5) * const.mu_H * (const.c ** 2)) / const.hbar
+    omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2 * const.hbar)
+
+    n, n_prime = 6, 2
+
+    transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime, hydrogen=True)
+    print(transitions_n_to_n_prime)
+
+    transitions_n_to_n_prime_rs_mean = transitions_n_to_n_prime.get_spontanious_decay_mean() / rs_mean_normalized_coeff
+    print(f"R^s_mean / rs_mean_normalized_coeff  ="
+          f" {transitions_n_to_n_prime_rs_mean}")
+    reel_rs_3_to_2_mean = 0.000060611
+    print(f"reel R^s = {reel_rs_3_to_2_mean},"
+          f" deviation: {100 * (np.abs(transitions_n_to_n_prime_rs_mean - reel_rs_3_to_2_mean) / rs_mean_normalized_coeff)} %")
+
+    print(f"omega / omega_normalized_coeff  ="
+          f" {transitions_n_to_n_prime.get_angular_frequency(3, 2, const.Z_H, const.mu_H) / omega_normalized_coeff}")

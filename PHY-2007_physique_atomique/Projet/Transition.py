@@ -62,10 +62,10 @@ class Transition:
                     f"-> {self._ending_quantum_state.repr_without_spin()})"
         return this_repr
 
-    def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True), algo="mcint"):
+    def get_spontanious_decay_rate(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True), algo="auto"):
         """
         Get the spontanious decay rate of the transition
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: the spontanious decay rate (float)
         """
@@ -76,19 +76,23 @@ class Transition:
             self.spontanious_decay_rate = Transition.n_ell_m_ell_state_to_rs[self.repr_without_spin()]
             return self.spontanious_decay_rate
 
-        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        r, theta, phi = sp.Symbol("r", real=True, positive=True), sp.Symbol("theta", real=True),\
+                        sp.Symbol("phi", real=True)
         coeff = (4*const.alpha*(self.get_delta_energy(z, mu)**3))/(3*(const.hbar**3)*(const.c**2))
-        psi = sp.FU['TR8'](self._initial_quantum_state.get_wave_fonction(z, mu))
-        psi_prime = sp.FU['TR8'](self._ending_quantum_state.get_wave_fonction(z, mu))
+        psi = self._initial_quantum_state.get_wave_fonction(z, mu)
+        psi_prime = self._ending_quantum_state.get_wave_fonction(z, mu)
 
-        # print(f"\n psi: {psi} \n psi_prime: {psi_prime} \n")
+        if algo == "auto":
+            if self._initial_quantum_state.hydrogen and self._ending_quantum_state.hydrogen:
+                algo = "sympy_ns"
+            else:
+                algo = "scipy_nquad"
 
         # \Vec{r} = x + y + z
         r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
 
-        # Process the integral with scipy
+        # Process the integral with algo
         bracket_product = QuantumFactory.bracket_product(psi, psi_prime, r_operator, algo)
-        # print(bracket_product)
 
         bracket_product_norm_square = sp.Mul(sp.conjugate(bracket_product), bracket_product).evalf()
         # print(bracket_product_norm_square)
@@ -152,9 +156,9 @@ class Transition:
 if __name__ == '__main__':
     import time
     start_time = time.time()
-    print(cuda.gpus)
-    qs1 = QuantumState(n=2, ell=1, m_ell=0, s=0.5, m_s=0.5)
-    qs2 = QuantumState(n=1, ell=0, m_ell=0, s=0.5, m_s=0.5)
+
+    qs1 = QuantumState(n=2, ell=1, m_ell=0, s=0.5, m_s=0.5, hydrogen=True)
+    qs2 = QuantumState(n=1, ell=0, m_ell=0, s=0.5, m_s=0.5, hydrogen=True)
 
     print(f"psi_1{qs1} = {qs1.get_wave_fonction()}")
     print(f"psi_2{qs2} = {qs2.get_wave_fonction()}")
@@ -165,7 +169,7 @@ if __name__ == '__main__':
     trans = Transition(qs1, qs2)
 
     print('-' * 175)
-    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="sympy") / rs_mean_normalized_coeff
+    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="auto") / rs_mean_normalized_coeff
     reel_rs_normalized = 0.002746686
     print(f"Transition: {trans}")
     print(f"R^s sympy = {rs_normalized}")
@@ -175,11 +179,3 @@ if __name__ == '__main__':
 
     start_time = time.time()
 
-    trans.spontanious_decay_rate = None
-    Transition.n_ell_m_ell_state_to_rs = dict()
-    rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="mcint") / rs_mean_normalized_coeff
-    print(f"Transition: {trans}")
-    print(f"R^s scipy = {rs_normalized}")
-    print(f"reel R^s = {reel_rs_normalized},"
-          f" deviation: {100 * (np.abs(rs_normalized - reel_rs_normalized))} %")
-    print('-' * 175 + f'\n elapse time: {time.time() - start_time}')

@@ -1,4 +1,5 @@
 import numpy
+from scipy import constants
 
 mu0: float = 1.2566e-6  # [kg m A^−2 s^−2]
 c: float = 2.998e8  # [m/s]
@@ -15,7 +16,8 @@ g_ell: float = 1.0
 g_s: float = 2.0
 s_H: numpy.ndarray = numpy.array([1/2])  # possible s for Hydrogen
 k_B: float = 1.0
-a0 = (hbar**2)/(m_e*(q_e**2))
+# a0 = (hbar**2)/(m_e*(q_e**2))
+a0 = constants.value("Bohr radius")
 
 
 def mu_mag(L, S) -> float:
@@ -39,3 +41,11 @@ def mu_mass(m_1, m_2) -> float:
 
 
 mu_H = mu_mass(m_p, m_e)
+
+
+if __name__ == '__main__':
+    print(f"alpha = {alpha}, \n"
+          f"hbar = {hbar}, \n"
+          f"c = {c}, \n"
+          f"a0 = {a0}, \n"
+          f"mu_H = {mu_H}")

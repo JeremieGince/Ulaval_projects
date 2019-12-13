@@ -16,7 +16,7 @@ class QuantumFactory:
     QuantumFactory is a module to combine a bunch of static method util in quantum mechanics
     """
     @staticmethod
-    def zeta_n(n=sp.Symbol("n", real=True), r=sp.Symbol("r", real=True),
+    def zeta_n(n=sp.Symbol("n", real=True), r=sp.Symbol("r", real=True, positive=True),
                z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         return the zeta_n function
@@ -67,6 +67,20 @@ class QuantumFactory:
         pass
 
     @staticmethod
+    def get_hydrogen_wave_function(n: int, ell: int, m_ell: int):
+        """
+        Give the hydrogen wave function of sympy
+        :param n: quantum number n (int)
+        :param ell: quantum number ell (int)
+        :param m_ell: quantum number m_ell (int)
+        :return:
+        """
+        from sympy.physics import hydrogen
+        r, theta, phi = sp.Symbol("r", real=True, positive=True),\
+                        sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        return hydrogen.Psi_nlm(n, ell, m_ell, r, phi, theta, Z=1/const.a0)
+
+    @staticmethod
     def get_valid_ell_with_n(n: int):
         return np.array([i for i in np.arange(start=0, stop=n, step=1)])
 
@@ -97,28 +111,30 @@ class QuantumFactory:
         return valid_transitions
 
     @staticmethod
-    def get_valid_transitions_n_to_n_prime(n: int, n_prime: int) -> list:
+    def get_valid_transitions_n_to_n_prime(n: int, n_prime: int, hydrogen: bool = False) -> list:
         """
         Get a Transitions(list) container of all of the valid transition of n to n_prime
-        :param n: (int)
-        :param n_prime: (int)
+        :param n: initial quantum number n (int)
+        :param n_prime: final quantum number n (int)
+        :param hydrogen: if we want to cast quantum state in quantum hydrogen state (bool)
         :return: Transitions(list) of Transition object of the initial state and final state (Transitions)
         """
         from Transition import Transition
         from Transitions import Transitions
         valid_transitions: Transitions = Transitions()
-        for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
-            for end_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n_prime):
+        for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n, hydrogen=hydrogen):
+            for end_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n_prime, hydrogen=hydrogen):
                 if Transition.possible(init_quantum_state, end_quantum_state):
                     valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
         return valid_transitions
 
     @staticmethod
-    def get_valid_quantum_state_for_n(n, s_array: np.ndarray = const.s_H) -> np.ndarray:
+    def get_valid_quantum_state_for_n(n, s_array: np.ndarray = const.s_H, hydrogen: bool = False) -> np.ndarray:
         """
         Get all the valid quantum state for the orbital number n
         :param n: orbital number n (int)
         :param s_array: array of possible spin number s (numpy.ndarray)
+        :param hydrogen: if we want to cast quantum state in quantum hydrogen state (bool)
         :return: array of valid quantum state (numpy.ndarray[QuantumState])
         """
         from QuantumState import QuantumState
@@ -127,7 +143,7 @@ class QuantumFactory:
             for m_ell in QuantumFactory.get_valid_m_ell_with_ell(ell):
                 for s in s_array:
                     for m_s in QuantumFactory.get_valid_m_s_with_s(s):
-                        valid_states.append(QuantumState(n, ell, m_ell, s, m_s))
+                        valid_states.append(QuantumState(n, ell, m_ell, s, m_s, hydrogen))
         return np.array(valid_states)
 
     @staticmethod
@@ -236,14 +252,15 @@ class QuantumFactory:
     @staticmethod
     def bracket_product(wave_function, wave_function_prime, operator=None, algo="mcint"):
         """
-
-        :param wave_function:
-        :param wave_function_prime:
-        :param operator:
-        :param algo:
+        Call the algo function to make the scalar product
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :param algo: algo to use to compute the integral (str) element of {sympy, sympy_ns, scipy_nquad, scipy_tplquad, mcint}
         :return:
         """
         algos = {"sympy": QuantumFactory.bracket_product_sympy,
+                 "sympy_ns": QuantumFactory.bracket_product_sympy_ns,
                  "scipy_nquad": QuantumFactory.bracket_product_scipy_nquad,
                  "scipy_tplquad": QuantumFactory.bracket_product_scipy_tplquad,
                  "mcint": QuantumFactory.bracket_product_mcint}
@@ -259,14 +276,38 @@ class QuantumFactory:
         :param operator:
         :return:
         """
-        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        r, theta, phi = sp.Symbol("r", real=True, positive=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r**2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
         integral_core_expension = sp.expand(sp.FU["TR8"](jacobian*integral_core), func=True).simplify()
 
         # creation of the Integral object and first try to resolve it
         bracket_product = sp.Integral(integral_core_expension,
-                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi)).doit()
+                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi),
+                                      risch=False).doit()
+
+        # simplify the result of the first try and evaluation of the integral, last attempt
+        bracket_product = bracket_product.simplify().evalf(n=50, maxn=3_000, strict=True)
+        return bracket_product
+
+    @staticmethod
+    def bracket_product_sympy_ns(wave_function, wave_function_prime, operator=None):
+        """
+
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :return: bracket product (float)
+        """
+        r, theta, phi = sp.Symbol("r", real=True, positive=True),\
+                        sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
+        jacobian = (r ** 2) * sp.sin(theta)
+        integral_core = wave_function * (operator if operator is not None else 1) * sp.conjugate(wave_function_prime)
+
+        # creation of the Integral object and first try to resolve it
+        bracket_product = sp.integrate(sp.nsimplify(jacobian*integral_core),
+                                       (phi, 0, 2 * np.pi), (r, 0, np.inf), (theta, 0, np.pi),
+                                       risch=False)
 
         # simplify the result of the first try and evaluation of the integral, last attempt
         bracket_product = bracket_product.simplify().evalf(n=50, maxn=3_000, strict=True)

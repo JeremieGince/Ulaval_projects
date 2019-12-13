@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     n, n_prime = 3, 2
 
-    transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime)
+    transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime, hydrogen=True)
     print(transitions_n_to_n_prime)
 
     transitions_n_to_n_prime_rs_mean = transitions_n_to_n_prime.get_spontanious_decay_mean() / rs_mean_normalized_coeff

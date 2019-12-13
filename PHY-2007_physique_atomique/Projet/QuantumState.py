@@ -5,10 +5,9 @@ import numba
 from QuantumFactory import QuantumFactory
 
 
-
 class QuantumState:
 
-    def __init__(self, n: int, ell: int, m_ell: int, s: float, m_s: float):
+    def __init__(self, n: int, ell: int, m_ell: int, s: float, m_s: float, hydrogen: bool = False):
         """
         QuantumState constructor
         :param n: orbital number (int)
@@ -16,12 +15,14 @@ class QuantumState:
         :param m_ell: (int)
         :param s: spin (float)
         :param m_s: (float)
+        :param hydrogen : if the current quantum state refer to a hydrogen atom (bool)
         """
         self._n: int = n
         self._ell: int = ell
         self._m_ell: int = m_ell
         self._s: float = s
         self._m_s: float = m_s
+        self.hydrogen: bool = hydrogen
         self.check_invariants()
 
     def check_invariants(self) -> None:
@@ -60,8 +61,8 @@ class QuantumState:
     def get_state_energy(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the energy of the current quantum state
-        :param z: electric charge
-        :param mu:
+        :param z: atomic number
+        :param mu: reduced mass
         :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
         return QuantumFactory.get_state_energy_unperturbeted(self._n, z, mu)
@@ -139,10 +140,13 @@ class QuantumState:
     def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the wave function of the current quantum state as a sympy object
-        :param z: electric charge
+        :param z: atomic number
         :param mu: reduced mass (float)
         :return: sympy object
         """
+        if self.hydrogen:
+            return QuantumFactory.get_hydrogen_wave_function(self._n, self._ell, self._m_ell)
+
         u = QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)
         y = QuantumFactory.Y_ell_m_ell(self._ell, self._m_ell)
         return u*y
