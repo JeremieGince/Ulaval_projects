@@ -15,32 +15,32 @@ mu_B: float = (q_e * hbar)/(2 * m_e)
 g_ell: float = 1.0
 g_s: float = 2.0
 s_H: numpy.ndarray = numpy.array([1/2])  # possible s for Hydrogen
-k_B: float = 1.0
+k_B: float = 1.38064852e-23  # [m^2 kg s^-2 K^-1] Boltzmann constant
 # a0 = (hbar**2)/(m_e*(q_e**2))
 a0 = constants.value("Bohr radius")
 
 
 def mu_mag(L, S) -> float:
     """
-
-    :param L:
-    :param S:
-    :return:
+    return the magnetic field with quantum number L and S
+    :param L: quantume number L (float)
+    :param S: quantum number S (S)
+    :return: (float)
     """
     return -(mu_B/hbar)*(g_ell*L + g_s*S)
 
 
 def mu_mass(m_1, m_2) -> float:
     """
-
-    :param m_1:
-    :param m_2:
-    :return:
+    return the reduced mass
+    :param m_1: mass 1 (float)
+    :param m_2: mass 2 (float)
+    :return: reduced mass (float)
     """
     return (m_1*m_2)/(m_1+m_2)
 
 
-mu_H = mu_mass(m_p, m_e)
+mu_H = mu_mass(m_p, m_e)  # reduced mass of the hydrogen
 
 
 if __name__ == '__main__':

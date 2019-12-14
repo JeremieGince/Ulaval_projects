@@ -22,7 +22,7 @@ class QuantumFactory:
         return the zeta_n function
         :param n: orbital number n (int)
         :param r: rayon variable (sympy object)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass
         :return: zeta_n function (sympy object)
         """
@@ -35,7 +35,7 @@ class QuantumFactory:
         return the u_{n \ell} function
         :param n: orbital number n (int)
         :param ell: kinetic momentum  (int)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: (sympy object)
         """
@@ -53,7 +53,7 @@ class QuantumFactory:
         """
         Return the spherical harmonic function
         :param ell: kinetic momentum (int)
-        :param m_ell:
+        :param m_ell: quantum number m_ell (int)
         :return: (sympy object)
         """
         from sympy.functions.special.spherical_harmonics import Ynm
@@ -63,17 +63,13 @@ class QuantumFactory:
         return Ynm(ell, m_ell, theta, phi).expand(func=True)
 
     @staticmethod
-    def Y_ell_m_ell_scipy(ell, m_ell):
-        pass
-
-    @staticmethod
     def get_hydrogen_wave_function(n: int, ell: int, m_ell: int):
         """
         Give the hydrogen wave function of sympy
         :param n: quantum number n (int)
         :param ell: quantum number ell (int)
         :param m_ell: quantum number m_ell (int)
-        :return:
+        :return: hydrogen wave function (sympy object)
         """
         from sympy.physics import hydrogen
         r, theta, phi = sp.Symbol("r", real=True, positive=True),\
@@ -81,15 +77,30 @@ class QuantumFactory:
         return hydrogen.Psi_nlm(n, ell, m_ell, r, phi, theta, Z=1/const.a0)
 
     @staticmethod
-    def get_valid_ell_with_n(n: int):
+    def get_valid_ell_with_n(n: int) -> np.ndarray:
+        """
+        Gives the possible ell with a given n
+        :param n: quantum number n (int)
+        :return: array of possible quantum number ell (np.ndarray)
+        """
         return np.array([i for i in np.arange(start=0, stop=n, step=1)])
 
     @staticmethod
-    def get_valid_m_ell_with_ell(ell: int):
+    def get_valid_m_ell_with_ell(ell: int) -> np.ndarray:
+        """
+        Gives the possible m_ell with a given ell
+        :param ell: quantum number ell (int)
+        :return: array of possible m_ell (np.ndarray)
+        """
         return np.array([i for i in np.arange(start=-ell, stop=ell+1, step=1)])
 
     @staticmethod
-    def get_valid_m_s_with_s(s: float):
+    def get_valid_m_s_with_s(s: float) -> np.ndarray:
+        """
+        Gives the possible m_s with a given s
+        :param s: quantum number s or spin (float)
+        :return: array of the possible m_s (numpy.ndarray)
+        """
         return np.array([i for i in np.arange(start=-s, stop=s+1, step=1)])
 
     @staticmethod
@@ -104,7 +115,7 @@ class QuantumFactory:
         from Transitions import Transitions
         import warnings
         warnings.warn("Warning! This method seems to be not valid", DeprecationWarning)
-        valid_transitions = Transitions()  # must be a Transitions object
+        valid_transitions = Transitions()
         for init_quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
             for end_quantum_state in init_quantum_state.get_valid_transitions_state_to_n(n_prime):
                 valid_transitions.append(Transition(init_quantum_state, end_quantum_state))
@@ -166,9 +177,9 @@ class QuantumFactory:
     def get_state_energy_unperturbeted(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the energy of the current quantum state
-        :param n:
-        :param z: electric charge
-        :param mu:
+        :param n: quantum number n (int)
+        :param z: atomic number (float)
+        :param mu: reduced mass (float)
         :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
         numerator = - (z**2)*(const.alpha**2)*mu*(const.c**2)
@@ -182,7 +193,7 @@ class QuantumFactory:
         Getter of the transition energy without any pertubation
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
-        :param z: (float)
+        :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
         """
@@ -197,7 +208,7 @@ class QuantumFactory:
         Getter of the transition angular frequency without any pertubation
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
-        :param z: (float)
+        :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
         """
@@ -209,7 +220,7 @@ class QuantumFactory:
         Return the decay number of the level n for unperturbeted energy.
         :param n: orbital number n (int)
         :param T: Current temperature (float)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
@@ -217,23 +228,31 @@ class QuantumFactory:
         return g*sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu)/(const.k_B*T))
 
     @staticmethod
-    def decay_number_ratio(n: int, n_prime: int, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+    def decay_number_ratio(n: int, n_prime: int, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
         Return the ratio of decay number of the levels n to n_prime for unperturbeted energy.
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
-        :param k_B: (float)
         :param T: Current temperature (float)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: the ration of decay number (float)
         """
-        N_i = QuantumFactory.decay_number(n, k_B, T, z, mu)
-        N_j = QuantumFactory.decay_number(n_prime, k_B, T, z, mu)
+        N_i = QuantumFactory.decay_number(n, T, z, mu)
+        N_j = QuantumFactory.decay_number(n_prime, T, z, mu)
         return (N_i/N_j).evalf()
 
     @staticmethod
     def intensity_of_the_beam(n: int, n_prime: int, T: float, z: int=const.Z_H, mu: float=const.mu_H):
+        """
+        Gives the intensity of the beam with a proportional function alpha
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param T: Current temperature (float)
+        :param z: atomic number (int)
+        :param mu: reduced mass (float)
+        :return: intensity of the beam (sympy object)
+        """
         from Transitions import Transitions
         transitions = Transitions(n, n_prime)
         alpha = sp.Symbol('alpha')  # proportional function
@@ -245,6 +264,17 @@ class QuantumFactory:
     @staticmethod
     def relative_intensity_of_the_beam(n: int, n_prime: int, i: int, j: int,
                                        T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        """
+        Gives the intensity of the beam normalized with the intensity of another transition beam
+        :param n: initial orbital number n (int)
+        :param n_prime: final orbital number n (int)
+        :param i: initial orbital number n of the base transition (int)
+        :param j: final orbital number n of the base transition (int)
+        :param T: Current temperature (float)
+        :param z: atomic number (int)
+        :param mu: reduced mass (float)
+        :return: intensity of the beam normalized (float)
+        """
         I1 = QuantumFactory.intensity_of_the_beam(n, n_prime, T, z, mu)
         I2 = QuantumFactory.intensity_of_the_beam(i, j, T, z, mu)
         return (I1/I2).evalf()
@@ -252,7 +282,7 @@ class QuantumFactory:
     @staticmethod
     def bracket_product(wave_function, wave_function_prime, operator=None, algo="mcint"):
         """
-        Call the algo function to make the scalar product
+        Call the algo function to make the scalar product <bra|operator|ket>
         :param wave_function: bra
         :param wave_function_prime: ket
         :param operator: operator
@@ -271,11 +301,11 @@ class QuantumFactory:
     @staticmethod
     def bracket_product_sympy(wave_function, wave_function_prime, operator=None):
         """
-
-        :param wave_function:
-        :param wave_function_prime:
-        :param operator:
-        :return:
+        Compute the scalar product <bra|operator|ket> with sympy
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :return: bracket product (float)
         """
         r, theta, phi = sp.Symbol("r", real=True, positive=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r**2) * sp.sin(theta)
@@ -316,6 +346,13 @@ class QuantumFactory:
 
     @staticmethod
     def bracket_product_scipy_nquad(wave_function, wave_function_prime, operator=None):
+        """
+        Compute the scalar product <bra|operator|ket> with scipy and the integrate algorithm nquad
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :return: bracket product (float)
+        """
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r ** 2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
@@ -338,6 +375,13 @@ class QuantumFactory:
 
     @staticmethod
     def bracket_product_scipy_tplquad(wave_function, wave_function_prime, operator=None):
+        """
+        Compute the scalar product <bra|operator|ket> with scipy and the integrate algorithm tplquad
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :return: bracket product (float)
+        """
         from sympy.utilities.lambdify import lambdastr
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r ** 2) * sp.sin(theta)
@@ -360,12 +404,12 @@ class QuantumFactory:
     @staticmethod
     def complex_quadrature(integrate_func, func, *args, **kwargs):
         """
-
-        :param integrate_func:
-        :param func:
-        :param args:
-        :param kwargs:
-        :return:
+        Gives the complex quadrature of a function
+        :param integrate_func: the integration function
+        :param func: the actual function to integrate
+        :param args: args to pass to integrate_func
+        :param kwargs: kwargs to pass to integrate_func
+        :return: (the complex quadrature, real error, imag error) (tuple)
         """
         def real_func(x, y, z):
             return sc.real(func(x, y, z))
@@ -379,6 +423,13 @@ class QuantumFactory:
 
     @staticmethod
     def bracket_product_mcint(wave_function, wave_function_prime, operator=None):
+        """
+        Compute the scalar product <bra|operator|ket> with a monte carlo integration algorithm
+        :param wave_function: bra
+        :param wave_function_prime: ket
+        :param operator: operator
+        :return: bracket product (float)
+        """
         r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
         jacobian = (r ** 2) * sp.sin(theta)
         integral_core = sp.conjugate(wave_function) * (operator if operator is not None else 1) * wave_function_prime
@@ -398,6 +449,14 @@ class QuantumFactory:
 
     @staticmethod
     def monte_carlo_integration(integrand, bornes: list, domainsize=(0.0, 1.0), n_sample: int = int(1e6)):
+        """
+        Compute the integral with a monte carlo integration algorithm
+        :param integrand: the function to integrate (lambda or func)
+        :param bornes: the
+        :param domainsize: (tuple of len==2)
+        :param n_sample: number of sample to use (int)
+        :return: the integral of the integrand (float)
+        """
         np.random.seed(1)
         # Sum elements and elements squared
         total = 0.0
@@ -424,6 +483,14 @@ class QuantumFactory:
 
     @staticmethod
     def monte_carlo_integration_sph(integrand, bornes: list, domainsize=(0.0, 1.0), n_sample: int = int(1e6)):
+        """
+        Compute the integral with a spherical monte carlo integration algorithm
+        :param integrand: the function to integrate (lambda or func)
+        :param bornes: the
+        :param domainsize: (tuple of len==2)
+        :param n_sample: number of sample to use (int)
+        :return: the integral of the integrand (float)
+        """
         # np.random.seed(1)
         # Sum elements and elements squared
 

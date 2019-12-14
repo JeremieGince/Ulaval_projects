@@ -12,9 +12,9 @@ class QuantumState:
         QuantumState constructor
         :param n: orbital number (int)
         :param ell: angular momentum (int)
-        :param m_ell: (int)
+        :param m_ell: quantum number m_ell (int)
         :param s: spin (float)
-        :param m_s: (float)
+        :param m_s: quantum number m_s (float)
         :param hydrogen : if the current quantum state refer to a hydrogen atom (bool)
         """
         self._n: int = n
@@ -142,7 +142,7 @@ class QuantumState:
         Get the wave function of the current quantum state as a sympy object
         :param z: atomic number
         :param mu: reduced mass (float)
-        :return: sympy object
+        :return: the wave function (sympy object)
         """
         if self.hydrogen:
             return QuantumFactory.get_hydrogen_wave_function(self._n, self._ell, self._m_ell)
@@ -151,17 +151,16 @@ class QuantumState:
         y = QuantumFactory.Y_ell_m_ell(self._ell, self._m_ell)
         return u*y
 
-    def decay_number(self, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+    def decay_number(self, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
         Return the decay number of the current QuantumState.
-        :param k_B: (float)
         :param T: Current temperature (float)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
         alpha = sp.Symbol('alpha')  # proportional function
-        return alpha*QuantumFactory.get_g_n(self._n)*sp.exp(-self.get_state_energy(z, mu)/(k_B*T))
+        return alpha*QuantumFactory.get_g_n(self._n)*sp.exp(-self.get_state_energy(z, mu)/(const.k_B*T))
 
 
 if __name__ == '__main__':
@@ -170,7 +169,7 @@ if __name__ == '__main__':
     print(f"psi_{quantum_state} = {quantum_state.get_wave_fonction()}")
     print(f"E_{quantum_state} = {quantum_state.get_state_energy()}")
     print(Transition.possible(quantum_state, QuantumState(2, 0, 0, 1 / 2, 1 / 2)))
-    print(Transition.possible(quantum_state, QuantumState(2, 1, 1/2, 1/2, 1 / 2)))
+    print(Transition.possible(quantum_state, QuantumState(2, 1, 0, 1/2, 1 / 2)))
 
     valid_transitions_test_1_to_2 = [QuantumState(2, 1, -1, 1/2, 1/2),
                                      QuantumState(2, 1, 0, 1/2, 1/2),

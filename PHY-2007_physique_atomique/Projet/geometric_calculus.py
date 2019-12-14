@@ -1,5 +1,5 @@
 import numpy as np
-import Constantes as const
+import Constants as const
 
 
 class Geometric_calculus:

@@ -44,7 +44,7 @@ class Transitions(list):
     def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H, verbose: bool = False) -> float:
         """
         Get mean of the spontanious decay rate of transitions in the current container
-        :param z: (int)
+        :param z:  atomic number (float)
         :param mu: redeced mass (float)
         :param verbose: if True, will show elapse time (bool)
         :return: mean spontanious decay rate (float)
@@ -66,8 +66,8 @@ class Transitions(list):
         Get the angular frequency between two states using the unperturbeted energy.
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
-        :param z: (int)
-        :param mu: (float)
+        :param z: atomic number (float)
+        :param mu: reduced mass (float)
         :return: angular frequency (float)
         """
         import warnings
@@ -88,6 +88,10 @@ class Transitions(list):
         return this_repr
 
     def get_n_to_n_prime_couple(self) -> set:
+        """
+        gives a set of every tuple (n, n_prime) of the current container
+        :return: tuple (n, n_prime) (set)
+        """
         couple_set: set = set()
         for trans in self:
             couple_set.add(trans.get_n_to_n_prime_couple())

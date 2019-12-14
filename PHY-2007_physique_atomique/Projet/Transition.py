@@ -68,6 +68,10 @@ class Transition:
         assert Transition.possible(self._initial_quantum_state, self._ending_quantum_state)
 
     def get_n_to_n_prime_couple(self) -> tuple:
+        """
+        Gives the tuple (initial_quantum_state.n, ending_quantum_state.n)
+        :return: (tuple)
+        """
         return self._initial_quantum_state.get_n(), self._ending_quantum_state.get_n()
 
     def __repr__(self) -> str:
@@ -131,7 +135,7 @@ class Transition:
     def get_delta_energy(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition energy without any pertubation
-        :param z:
+        :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
         """
@@ -140,7 +144,7 @@ class Transition:
     def get_angular_frequency(self, z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
         Getter of the transition angular frequency without any pertubation
-        :param z:
+        :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
         """
