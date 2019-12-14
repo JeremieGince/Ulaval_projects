@@ -1,7 +1,6 @@
 import numpy as np
 import Constants as const
 import sympy as sp
-import numba
 from QuantumFactory import QuantumFactory
 
 

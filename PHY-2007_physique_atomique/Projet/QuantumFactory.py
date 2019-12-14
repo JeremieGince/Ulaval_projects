@@ -4,8 +4,6 @@ import sympy as sp
 import mpmath
 import scipy as sc
 from scipy import integrate
-import mcint
-import random
 import itertools
 import numba
 from numba import cuda, prange
