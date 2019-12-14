@@ -19,7 +19,9 @@ def tab_cell(n, n_prime):
     rs_mean_normalized_coeff = ((const.alpha ** 5) * const.mu_H * (const.c ** 2)) / const.hbar
     omega_normalized_coeff = ((const.alpha ** 2) * const.mu_H * (const.c ** 2)) / (2 * const.hbar)
 
-    print(f'-'*175)
+    print(f'-'*50)
+
+    print(f"Transition ({n} -> {n_prime}) : \n")
 
     transitions_n_to_n_prime = Transitions(n=n, n_prime=n_prime, hydrogen=True)
     # print(f"Transitions: {transitions_n_to_n_prime} \n")
@@ -40,7 +42,7 @@ def tab_cell(n, n_prime):
 
     print(f"reel omega = {reel_omega_mean:.5e}")
 
-    print(f'-' * 175)
+    print(f'-' * 50)
 
 
 if __name__ == '__main__':
@@ -66,4 +68,5 @@ if __name__ == '__main__':
                                                                            4, 2, T=problem_variable["T"])
         print(f" I_{couple} / I_(4, 2) = {relative_intensity:.5f}")
 
-    print(f"--- elapse time : {time.time() - start_time} s ---")
+    print(f"--- elapse time : {time.time() - start_time:.2f} s ---")
+
