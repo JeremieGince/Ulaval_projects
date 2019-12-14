@@ -53,7 +53,6 @@ if __name__ == '__main__':
         "T": 1_000,  # [K]
     }
     couples = [(3, 2), (4, 2), (5, 2), (6, 2)]
-    # couples = [(3, 2), (4, 2)]
 
     start_time = time.time()
 

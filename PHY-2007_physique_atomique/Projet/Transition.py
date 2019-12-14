@@ -9,20 +9,25 @@ import mpmath
 import scipy as sc
 from scipy import integrate
 from QuantumFactory import QuantumFactory
+import os
 
 
 class Transition:
-    TRANSITIONS_RULES = {"Delta ell": [-1, 1],
-                         "Delta m_ell": [-1, 0, 1],
-                         "Delta s": [0],
-                         "Delta m_s": [0]}
+    TRANSITIONS_RULES: dict = {"Delta ell": [-1, 1],
+                               "Delta m_ell": [-1, 0, 1],
+                               "Delta s": [0],
+                               "Delta m_s": [0]}
 
-    TRANSITIONS_RULES_SPIN = {"Delta ell": [-1, 1],
-                              "Delta m_ell": [-1, 0, 1],
-                              "Delta j": [-1, 0, 1],
-                              "Delta m_j": [-1, 0, 1]}
+    TRANSITIONS_RULES_SPIN: dict = {"Delta ell": [-1, 1],
+                                    "Delta m_ell": [-1, 0, 1],
+                                    "Delta j": [-1, 0, 1],
+                                    "Delta m_j": [-1, 0, 1]}
 
-    n_ell_m_ell_state_to_rs = dict()
+    n_ell_m_ell_state_to_rs: dict = dict()
+
+    transition_count: int = int(0)
+
+    static_save_file = os.getcwd() + "/Transition_static_values.npy"
 
     def __init__(self, initial_quantum_state: QuantumState, ending_quantum_state: QuantumState):
         """
@@ -34,6 +39,26 @@ class Transition:
         self._ending_quantum_state = ending_quantum_state
         self.check_invariant()
         self.spontanious_decay_rate = None
+        Transition.transition_count += 1
+        self.load_static_values()
+
+    def __del__(self):
+        Transition.save_static_values()
+        Transition.transition_count -= 1
+
+    @staticmethod
+    def save_static_values() -> None:
+        if Transition.transition_count >= 1:
+            np.save(Transition.static_save_file, Transition.n_ell_m_ell_state_to_rs)
+
+    @staticmethod
+    def load_static_values() -> None:
+        if Transition.transition_count >= 1 and os.path.exists(Transition.static_save_file):
+            Transition.n_ell_m_ell_state_to_rs = np.load(Transition.static_save_file, allow_pickle=True).item()
+
+    @staticmethod
+    def clear_static_values() -> None:
+        os.remove(Transition.static_save_file)
 
     def check_invariant(self) -> None:
         """
@@ -168,6 +193,8 @@ if __name__ == '__main__':
 
     trans = Transition(qs1, qs2)
 
+    print(Transition.n_ell_m_ell_state_to_rs)
+
     print('-' * 175)
     rs_normalized = trans.get_spontanious_decay_rate(z=const.Z_H, mu=const.mu_H, algo="auto") / rs_mean_norm_coeff
     reel_rs_normalized = 0.002746686
@@ -178,4 +205,9 @@ if __name__ == '__main__':
     print('-'*175+f'\n elapse time: {time.time()-start_time}')
 
     start_time = time.time()
+
+    print(Transition.transition_count)
+    del(trans)
+    print(Transition.transition_count)
+
 
