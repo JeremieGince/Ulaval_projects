@@ -6,10 +6,10 @@ import time
 
 
 def tab_cell(n, n_prime):
-    rs_answ = {"(3, 2)": 0.000060611,
+    rs_answ = {"(3, 2)": 0.00274668657777777777777777777778,
                "(4, 2)": 0.00052436,
                "(5, 2)": 0.000157596,
-               "(6, 2)": 0.00274668657777777777777777777778}
+               "(6, 2)": 0.000060611}
 
     om_answ = {"(3, 2)": 5/36,
                "(4, 2)": 3/16,
@@ -31,7 +31,7 @@ def tab_cell(n, n_prime):
 
     reel_rs_mean = rs_answ[str((n, n_prime))] if str((n, n_prime)) in rs_answ else 0.0
 
-    print(f"reel R^s = {reel_rs_mean:.5e} \n")
+    print(f"reel R^s  / rs_mean_normalized_coeff = {reel_rs_mean:.5e} \n")
 
     omega = QuantumFactory.get_transition_angular_frequency_unperturbated(n, n_prime, const.Z_H, const.mu_H)
     omega_normalized = omega / omega_normalized_coeff
@@ -40,7 +40,7 @@ def tab_cell(n, n_prime):
 
     reel_omega_mean = om_answ[str((n, n_prime))] if str((n, n_prime)) in om_answ else 0.0
 
-    print(f"reel omega = {reel_omega_mean:.5e}")
+    print(f"reel omega  / omega_normalized_coeff = {reel_omega_mean:.5e}")
 
     print(f'-' * 50)
 
