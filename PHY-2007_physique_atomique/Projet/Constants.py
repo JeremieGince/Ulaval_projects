@@ -40,7 +40,7 @@ def mu_mass(m_1, m_2) -> float:
     return (m_1*m_2)/(m_1+m_2)
 
 
-mu_H = mu_mass(m_p, m_e)  # reduced mass of the hydrogen
+mu_H = mu_mass(m_p, m_e)  # reduced mass of hydrogen
 
 
 if __name__ == '__main__':
