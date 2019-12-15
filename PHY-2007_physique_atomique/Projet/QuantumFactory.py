@@ -174,7 +174,7 @@ class QuantumFactory:
         return int(np.sum(list(deg_dico.values())))
 
     @staticmethod
-    def get_state_energy_unperturbed(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def get_state_energy_unperturbed(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)) -> float:
         """
         Get the energy of the current quantum state
         :param n: quantum number n (int)
@@ -188,7 +188,7 @@ class QuantumFactory:
 
     @staticmethod
     def get_delta_energy_unperturbed(n: int, n_prime: int,
-                                     z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+                                     z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)) -> float:
         """
         Getter of the transition energy without any perturbation
         :param n: initial orbital number n (int)
