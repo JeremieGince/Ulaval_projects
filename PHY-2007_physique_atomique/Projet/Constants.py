@@ -15,8 +15,8 @@ mu_B: float = (q_e * hbar)/(2 * m_e)
 g_ell: float = 1.0
 g_s: float = 2.0
 s_H: numpy.ndarray = numpy.array([1/2])  # possible s for Hydrogen
-k_B: float = constants.value("Stefan-Boltzmann constant")  # [W m^-2 K^-4] Boltzmann constant
-a0: float = constants.value("Bohr radius")
+k_B: float = constants.value("Boltzmann constant")  # Boltzmann constant [J K^-1]
+a0: float = constants.value("Bohr radius")  # 0.529 177 210 67 e-10 [m]
 
 
 def mu_mag(L, S) -> float:
