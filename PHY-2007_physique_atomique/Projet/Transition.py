@@ -113,7 +113,7 @@ class Transition:
                 algo = "scipy_nquad"
 
         # \Vec{r} = x + y + z
-        r_operator = r * sp.cos(theta) * (sp.cos(phi) + sp.sin(phi) + 1)
+        r_operator = r * (sp.sin(theta)*sp.cos(phi) + sp.sin(theta)*sp.sin(phi) + sp.cos(theta))
 
         # Process the integral with algo
         bracket_product = QuantumFactory.bracket_product(psi, psi_prime, r_operator, algo)
