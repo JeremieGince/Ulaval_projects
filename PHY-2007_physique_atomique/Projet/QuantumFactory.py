@@ -107,8 +107,8 @@ class QuantumFactory:
     def get_valid_transitions_n_to_n(n, n_prime) -> list:
         """
         Get a Transitions(list) container of all of the valid transition of n to n_prime
-        :param n: (int)
-        :param n_prime: (int)
+        :param n: initial quantum number n (int)
+        :param n_prime: final quantum number n (int)
         :return: Transitions(list) of Transition object of the initial state and final state (Transitions)
         """
         from Transition import Transition
@@ -174,7 +174,7 @@ class QuantumFactory:
         return int(np.sum(list(deg_dico.values())))
 
     @staticmethod
-    def get_state_energy_unperturbeted(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def get_state_energy_unperturbed(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the energy of the current quantum state
         :param n: quantum number n (int)
@@ -187,37 +187,37 @@ class QuantumFactory:
         return numerator / denumerator
 
     @staticmethod
-    def get_delta_energy_unpertuberted(n: int, n_prime: int,
-                                       z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_delta_energy_unperturbed(n: int, n_prime: int,
+                                     z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
-        Getter of the transition energy without any pertubation
+        Getter of the transition energy without any perturbation
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
         :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: transition energy (float) or transition energy (sympy object)
         """
-        e = QuantumFactory.get_state_energy_unperturbeted(n, z, mu)
-        e_prime = QuantumFactory.get_state_energy_unperturbeted(n_prime, z, mu)
+        e = QuantumFactory.get_state_energy_unperturbed(n, z, mu)
+        e_prime = QuantumFactory.get_state_energy_unperturbed(n_prime, z, mu)
         return e - e_prime
 
     @staticmethod
-    def get_transition_angular_frequency_unperturbated(n: int, n_prime: int,
-                                                       z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
+    def get_transition_angular_frequency_unperturbed(n: int, n_prime: int,
+                                                     z=sp.Symbol('Z', real=True), mu=sp.Symbol('mu', real=True)):
         """
-        Getter of the transition angular frequency without any pertubation
+        Getter of the transition angular frequency without any perturbation
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
         :param z: atomic number (float)
         :param mu: reduced mass (float)
         :return: angular frequency (float) or angular frequency (sympy object)
         """
-        return QuantumFactory.get_delta_energy_unpertuberted(n, n_prime, z, mu) / const.hbar
+        return QuantumFactory.get_delta_energy_unperturbed(n, n_prime, z, mu) / const.hbar
 
     @staticmethod
     def decay_number(n: int, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
-        Return the decay number of the level n for unperturbeted energy.
+        Return the decay number of the level n for unperturbed energy.
         :param n: orbital number n (int)
         :param T: Current temperature (float)
         :param z: atomic number (int)
@@ -225,12 +225,12 @@ class QuantumFactory:
         :return: a sympy expression of the decay number (sympy object)
         """
         g = QuantumFactory.get_g_n(n)
-        return g * sp.exp(-QuantumFactory.get_state_energy_unperturbeted(n, z, mu) / (const.k_B * T))
+        return g * sp.exp(-QuantumFactory.get_state_energy_unperturbed(n, z, mu) / (const.k_B * T))
 
     @staticmethod
     def decay_number_ratio(n: int, n_prime: int, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
-        Return the ratio of decay number of the levels n to n_prime for unperturbeted energy.
+        Return the ratio of decay number of the levels n to n_prime for unperturbed energy.
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
         :param T: Current temperature (float)
@@ -256,9 +256,9 @@ class QuantumFactory:
         from Transitions import Transitions
         transitions = Transitions(n, n_prime)
         alpha = sp.Symbol('alpha')  # proportional function
-        omega = QuantumFactory.get_transition_angular_frequency_unperturbated(n, n_prime, z, mu)
+        omega = QuantumFactory.get_transition_angular_frequency_unperturbed(n, n_prime, z, mu)
         N = QuantumFactory.decay_number(n, T, z, mu)
-        Rs_mean = transitions.get_spontanious_decay_mean(z, mu)
+        Rs_mean = transitions.get_spontaneous_decay_mean(z, mu)
         return alpha * N * omega * Rs_mean
 
     @staticmethod
@@ -456,7 +456,7 @@ class QuantumFactory:
         """
         Compute the integral with a monte carlo integration algorithm
         :param integrand: the function to integrate (lambda or func)
-        :param bornes: the
+        :param bornes:
         :param domainsize: (tuple of len==2)
         :param n_sample: number of sample to use (int)
         :return: the integral of the integrand (float)
@@ -490,7 +490,7 @@ class QuantumFactory:
         """
         Compute the integral with a spherical monte carlo integration algorithm
         :param integrand: the function to integrate (lambda or func)
-        :param bornes: the
+        :param bornes: 
         :param domainsize: (tuple of len==2)
         :param n_sample: number of sample to use (int)
         :return: the integral of the integrand (float)

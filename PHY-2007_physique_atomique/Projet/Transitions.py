@@ -19,7 +19,7 @@ class Transitions(list):
             "params n and n_prime must be integer or None"
         if isinstance(n, int) and isinstance(n, int):
             self.append_transitions_n_to_n(n, n_prime, hydrogen=hydrogen)
-        self.spontanious_decay_mean: float = None
+        self.spontaneous_decay_mean: float = None
 
     def append(self, transition: Transition) -> None:
         """
@@ -41,29 +41,29 @@ class Transitions(list):
         for trans in QuantumFactory.get_valid_transitions_n_to_n_prime(n, n_prime, hydrogen=hydrogen):
             self.append(trans)
 
-    def get_spontanious_decay_mean(self, z=const.Z_H, mu=const.mu_H, verbose: bool = False) -> float:
+    def get_spontaneous_decay_mean(self, z=const.Z_H, mu=const.mu_H, verbose: bool = False) -> float:
         """
-        Get mean of the spontanious decay rate of transitions in the current container
+        Get mean of the spontaneous decay rate of transitions in the current container
         :param z:  atomic number (float)
-        :param mu: redeced mass (float)
+        :param mu: reduced mass (float)
         :param verbose: if True, will show elapse time (bool)
-        :return: mean spontanious decay rate (float)
+        :return: mean spontaneous decay rate (float)
         """
-        if self.spontanious_decay_mean is not None:
-            return self.spontanious_decay_mean
+        if self.spontaneous_decay_mean is not None:
+            return self.spontaneous_decay_mean
 
         if verbose:
-            rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
+            rs_vector: np.ndarray = np.array([trans.get_spontaneous_decay_rate(z=z, mu=mu) for trans in tqdm.tqdm(self)])
         else:
-            rs_vector: np.ndarray = np.array([trans.get_spontanious_decay_rate(z=z, mu=mu) for trans in self])
+            rs_vector: np.ndarray = np.array([trans.get_spontaneous_decay_rate(z=z, mu=mu) for trans in self])
 
-        self.spontanious_decay_mean: float = np.float(np.mean(rs_vector))
-        return self.spontanious_decay_mean
+        self.spontaneous_decay_mean: float = np.float(np.mean(rs_vector))
+        return self.spontaneous_decay_mean
 
     @staticmethod
     def get_angular_frequency(n, n_prime, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)) -> float:
         """
-        Get the angular frequency between two states using the unperturbeted energy.
+        Get the angular frequency between two states using the unperturbed energy.
         :param n: initial orbital number n (int)
         :param n_prime: final orbital number n (int)
         :param z: atomic number (float)
@@ -102,9 +102,9 @@ class Transitions(list):
         I: list = list()
         alpha = sp.Symbol('alpha')  # proportional function
         for couple in self.get_n_to_n_prime_couple():
-            omega = QuantumFactory.get_transition_angular_frequency_unperturbated(couple[0], couple[1], z, mu)
+            omega = QuantumFactory.get_transition_angular_frequency_unperturbed(couple[0], couple[1], z, mu)
             N = QuantumFactory.decay_number(couple[0], T, z, mu)
-            Rs_mean = self.get_spontanious_decay_mean(z, mu)
+            Rs_mean = self.get_spontaneous_decay_mean(z, mu)
             I.append(alpha*N*omega*Rs_mean)
         return np.array(I)
 

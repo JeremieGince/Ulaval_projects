@@ -64,7 +64,7 @@ class QuantumState:
         :param mu: reduced mass
         :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
-        return QuantumFactory.get_state_energy_unperturbeted(self._n, z, mu)
+        return QuantumFactory.get_state_energy_unperturbed(self._n, z, mu)
 
     def get_valid_transitions_state_to_n(self, other_n: int) -> list:
         """
@@ -136,7 +136,7 @@ class QuantumState:
                     f"m_ell: {self._m_ell})"
         return this_repr
 
-    def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def get_wave_function(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the wave function of the current quantum state as a sympy object
         :param z: atomic number
@@ -165,7 +165,7 @@ class QuantumState:
 if __name__ == '__main__':
     from Transition import Transition
     quantum_state = QuantumState(n=1, ell=0, m_ell=0, s=1 / 2, m_s=1 / 2)
-    print(f"psi_{quantum_state} = {quantum_state.get_wave_fonction()}")
+    print(f"psi_{quantum_state} = {quantum_state.get_wave_function()}")
     print(f"E_{quantum_state} = {quantum_state.get_state_energy()}")
     print(Transition.possible(quantum_state, QuantumState(2, 0, 0, 1 / 2, 1 / 2)))
     print(Transition.possible(quantum_state, QuantumState(2, 1, 0, 1/2, 1 / 2)))
