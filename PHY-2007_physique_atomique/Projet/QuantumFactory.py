@@ -177,7 +177,7 @@ class QuantumFactory:
     def get_g_unperturbed(n: int) -> int:
         """
         Get the degeneration number of the level n with unperturbed energy
-        :param n: orbital level (int)
+        :param n: quantum number n (int)
         :return: degeneration number (int)
         """
         return int(2*(n**2))
