@@ -323,9 +323,9 @@ class QuantumFactory:
         integral_core_expension = sp.expand(sp.FU["TR8"](jacobian * integral_core), func=True).simplify()
 
         # creation of the Integral object and first try to resolve it
-        bracket_product = sp.Integral(integral_core_expension,
-                                      (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi),
-                                      risch=False).doit()
+        bracket_product = sp.integrate(integral_core_expension,
+                                       (phi, 0, 2 * mpmath.pi), (r, 0, mpmath.inf), (theta, 0, mpmath.pi),
+                                       risch=False)
 
         # simplify the result of the first try and evaluation of the integral, last attempt
         bracket_product = bracket_product.simplify().evalf(n=50, maxn=3_000, strict=True)
