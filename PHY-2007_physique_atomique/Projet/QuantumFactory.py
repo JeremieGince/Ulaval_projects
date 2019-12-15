@@ -160,9 +160,9 @@ class QuantumFactory:
     @staticmethod
     def get_g_n(n: int) -> int:
         """
-        Get the degenesrence number of the level n
+        Get the degeneration number of the level n
         :param n: orbital level (int)
-        :return: degenesrecence number (int)
+        :return: degeneration number (int)
         """
         deg_dico = dict()
         for quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
@@ -490,7 +490,7 @@ class QuantumFactory:
         """
         Compute the integral with a spherical monte carlo integration algorithm
         :param integrand: the function to integrate (lambda or func)
-        :param bornes: 
+        :param bornes:
         :param domainsize: (tuple of len==2)
         :param n_sample: number of sample to use (int)
         :return: the integral of the integrand (float)
