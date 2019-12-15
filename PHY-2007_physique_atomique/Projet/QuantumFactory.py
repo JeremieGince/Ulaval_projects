@@ -174,6 +174,15 @@ class QuantumFactory:
         return int(np.sum(list(deg_dico.values())))
 
     @staticmethod
+    def get_g_unperturbed(n: int) -> int:
+        """
+        Get the degeneration number of the level n with unperturbed energy
+        :param n: orbital level (int)
+        :return: degeneration number (int)
+        """
+        return int(2*(n**2))
+
+    @staticmethod
     def get_state_energy_unperturbed(n: int, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)) -> float:
         """
         Get the energy of the current quantum state
@@ -224,7 +233,7 @@ class QuantumFactory:
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
-        g = QuantumFactory.get_g_n(n)
+        g = QuantumFactory.get_g_unperturbed(n)
         return g * sp.exp(-QuantumFactory.get_state_energy_unperturbed(n, z, mu) / (const.k_B * T))
 
     @staticmethod
