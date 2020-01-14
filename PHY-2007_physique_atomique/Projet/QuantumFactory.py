@@ -12,7 +12,7 @@ import Constants as const
 
 class QuantumFactory:
     """
-    QuantumFactory is a module to combine a bunch of static method util in quantum mechanics
+    QuantumFactory is a module to combine a bunch of static methods util in quantum mechanics
     """
 
     @staticmethod
@@ -164,7 +164,7 @@ class QuantumFactory:
         :param n: orbital level (int)
         :return: degeneration number (int)
         """
-        deg_dico = dict()
+        deg_dico: dict = dict()
         for quantum_state in QuantumFactory.get_valid_quantum_state_for_n(n):
             energy = quantum_state.get_state_energy()
             if energy in deg_dico.keys():
