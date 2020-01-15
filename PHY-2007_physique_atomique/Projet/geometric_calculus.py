@@ -1,5 +1,5 @@
 import numpy as np
-import Constants as const
+import Constantes as const
 
 
 class Geometric_calculus:
@@ -76,12 +76,12 @@ class Geometric_calculus:
             value of the angle of rotation of the prism in rad
         """
         n = self._get_refraction_value(w_c)
-        sin_argument = np.pi / 3 - np.arcsin((np.sin(self._angle + np.pi / 6) / n))
-        arcsin_argument = n * np.sin(sin_argument)
-        phi = np.arcsin(arcsin_argument) - np.pi / 6
+        sin_argument = np.pi/3 - np.arcsin((np.sin(self._angle + np.pi/6)/n))
+        arcsin_argument = n*np.sin(sin_argument)
+        phi = np.arcsin(arcsin_argument) - np.pi/6
         return phi
 
-    def _get_refraction_value(self, w) -> float:
+    def _get_refraction_value(self ,w) -> float:
         """This methods calculates the value of 
            the angle of the rotation of the prism which
             ensures that the beam with a frequency of w_c
@@ -97,7 +97,7 @@ class Geometric_calculus:
                 The value of the refraction index for the given frequency
         """
         c = const.c
-        value = self._B + self._C / (((2 * np.pi * c) / w) ** 2)
+        value = self._B + self._C/(((2*np.pi*c)/w)**2)
         return value
 
     def get_x_for_frequency(self, w) -> float:
@@ -133,9 +133,8 @@ class Geometric_calculus:
                 The value of the position of the beam on the screen in meters if the beam was refracted only once
         """
         n = self._get_refraction_value(w)
-        arcsin_argument = np.sin(np.pi / 6 + self._angle) / n
-        h_top = (self._L + (self._a / 3) * np.cos(self._phi)) * (
-            np.sin(np.arcsin(arcsin_argument) - np.pi / 6 + self._phi))
+        arcsin_argument = np.sin(np.pi/6 + self._angle)/n
+        h_top = (self._L + (self._a/3)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
         return h_top
 
     def get_differences_of_h(self, w) -> float:
@@ -153,16 +152,11 @@ class Geometric_calculus:
                 the height differences in m
         """
         n = self._get_refraction_value(w)
-        H = (self._L + (self._a / 3) * np.cos(self._phi)) / np.cos(
-            np.arcsin((np.sin(np.pi / 6 + self._angle)) / n) - np.pi / 6 + self._phi)
-        d = (np.sqrt(3) * (self._a / 3)) / np.sin(np.arcsin((np.sin(np.pi / 6 + self._angle)) / n) + np.pi / 6)
-        den = np.sin(
-            np.pi / 2 + np.abs(np.arcsin(np.sin(np.pi / 6 + self._angle) / n) - np.pi / 6 + self._phi) - np.abs(
-                np.arcsin(np.sin(np.pi / 6 + self._angle) / n) - np.arcsin(
-                    n * np.sin(np.pi / 3 - np.arcsin(np.sin(np.pi / 6 + self._angle) / n)))))
-        nim = np.sin(np.arcsin((np.sin(np.pi / 6 + self._angle)) / n) - np.arcsin(
-            n * np.sin(np.pi / 3 - np.arcsin((np.sin(np.pi / 6 + self._angle)) / n))))
-        diff_h = ((H - d) * nim) / den
+        H =(self._L + (self._a/3)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
+        d = (np.sqrt(3)*(self._a/3))/np.sin((2*np.pi)/6- np.arcsin((np.sin(np.pi/6 + self._angle))/n))
+        den = np.sin(np.pi/2 + np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n) - np.pi/6 + self._phi) - np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin(np.sin(np.pi/6 + self._angle)/n)))))
+        nim = np.sin(np.arcsin((np.sin(np.pi/6 + self._angle ))/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n))))
+        diff_h = ((H - d)*nim)/den
         return diff_h
 
     def get_delta_x(self, w) -> float:
@@ -185,7 +179,7 @@ class Geometric_calculus:
 
 
 if __name__ == "__main__":
-    G = Geometric_calculus(3.5e15, np.pi / 4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
+    G = Geometric_calculus(3.5e15, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
     print(G.get_delta_x(2.0e15))
     print(G.get_delta_x(2.5e15))
     print(G.get_delta_x(3e15))
