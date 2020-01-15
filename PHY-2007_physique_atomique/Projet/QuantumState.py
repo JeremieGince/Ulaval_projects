@@ -1,26 +1,27 @@
 import numpy as np
-import Constantes as const
+import Constants as const
 import sympy as sp
-import numba
 from QuantumFactory import QuantumFactory
 
 
 class QuantumState:
 
-    def __init__(self, n: int, ell: int, m_ell: float, s: float, m_s: float):
+    def __init__(self, n: int, ell: int, m_ell: int, s: float, m_s: float, hydrogen: bool = False):
         """
         QuantumState constructor
         :param n: orbital number (int)
         :param ell: angular momentum (int)
-        :param m_ell: (float)
+        :param m_ell: quantum number m_ell (int)
         :param s: spin (float)
-        :param m_s: (float)
+        :param m_s: quantum number m_s (float)
+        :param hydrogen : if the current quantum state refer to a hydrogen atom (bool)
         """
-        self._n = n
-        self._ell = ell
-        self._m_ell = m_ell
-        self._s = s
-        self._m_s = m_s
+        self._n: int = n
+        self._ell: int = ell
+        self._m_ell: int = m_ell
+        self._s: float = s
+        self._m_s: float = m_s
+        self.hydrogen: bool = hydrogen
         self.check_invariants()
 
     def check_invariants(self) -> None:
@@ -47,7 +48,7 @@ class QuantumState:
     def get_ell(self) -> int:
         return self._ell
 
-    def get_m_ell(self) -> float:
+    def get_m_ell(self) -> int:
         return self._m_ell
 
     def get_s(self) -> float:
@@ -59,11 +60,11 @@ class QuantumState:
     def get_state_energy(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the energy of the current quantum state
-        :param z: electric charge
-        :param mu:
+        :param z: atomic number
+        :param mu: reduced mass
         :return: the energy of the current quantum state (float if z and mu are float else sympy object)
         """
-        return QuantumFactory.get_state_energy_unperturbeted(self._n, z, mu)
+        return QuantumFactory.get_state_energy_unperturbed(self._n, z, mu)
 
     def get_valid_transitions_state_to_n(self, other_n: int) -> list:
         """
@@ -135,36 +136,39 @@ class QuantumState:
                     f"m_ell: {self._m_ell})"
         return this_repr
 
-    def get_wave_fonction(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
+    def get_wave_function(self, z=sp.Symbol("Z", real=True), mu=sp.Symbol('mu', real=True)):
         """
         Get the wave function of the current quantum state as a sympy object
-        :param z: electric charge
+        :param z: atomic number
         :param mu: reduced mass (float)
-        :return: sympy object
+        :return: the wave function (sympy object)
         """
-        r, theta, phi = sp.Symbol("r", real=True), sp.Symbol("theta", real=True), sp.Symbol("phi", real=True)
-        return QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)*sp.Ynm(self._ell, self._m_ell, theta, phi)
+        if self.hydrogen:
+            return QuantumFactory.get_hydrogen_wave_function(self._n, self._ell, self._m_ell)
 
-    def decay_number(self, k_B: float, T: float, z: int = const.Z_H, mu: float = const.mu_H):
+        u = QuantumFactory.u_n_ell(n=self._n, ell=self._ell, z=z, mu=mu)
+        y = QuantumFactory.Y_ell_m_ell(self._ell, self._m_ell)
+        return u*y
+
+    def decay_number(self, T: float, z: int = const.Z_H, mu: float = const.mu_H):
         """
         Return the decay number of the current QuantumState.
-        :param k_B: (float)
         :param T: Current temperature (float)
-        :param z: (int)
+        :param z: atomic number (int)
         :param mu: reduced mass (float)
         :return: a sympy expression of the decay number (sympy object)
         """
         alpha = sp.Symbol('alpha')  # proportional function
-        return alpha*QuantumFactory.get_g_n(self._n)*sp.exp(-self.get_state_energy(z, mu)/(k_B*T))
+        return alpha*QuantumFactory.get_g_n(self._n)*sp.exp(-self.get_state_energy(z, mu)/(const.k_B*T))
 
 
 if __name__ == '__main__':
     from Transition import Transition
     quantum_state = QuantumState(n=1, ell=0, m_ell=0, s=1 / 2, m_s=1 / 2)
-    print(f"psi_{quantum_state} = {quantum_state.get_wave_fonction()}")
+    print(f"psi_{quantum_state} = {quantum_state.get_wave_function()}")
     print(f"E_{quantum_state} = {quantum_state.get_state_energy()}")
     print(Transition.possible(quantum_state, QuantumState(2, 0, 0, 1 / 2, 1 / 2)))
-    print(Transition.possible(quantum_state, QuantumState(2, 1, 1/2, 1/2, 1 / 2)))
+    print(Transition.possible(quantum_state, QuantumState(2, 1, 0, 1/2, 1 / 2)))
 
     valid_transitions_test_1_to_2 = [QuantumState(2, 1, -1, 1/2, 1/2),
                                      QuantumState(2, 1, 0, 1/2, 1/2),
