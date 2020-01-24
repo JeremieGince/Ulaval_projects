@@ -1,5 +1,6 @@
-import numpy as np
 import random
+
+import numpy as np
 
 
 def load_iris_dataset(train_ratio: float) -> tuple:
@@ -68,24 +69,21 @@ def load_congressional_dataset(train_ratio):
         
         - train : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque 
         ligne dans cette matrice représente un exemple (ou instance) d'entrainement.
-		
         - train_labels : contient les labels (ou les étiquettes) pour chaque exemple dans train, de telle sorte
           que : train_labels[i] est le label (ou l'etiquette) pour l'exemple train[i]
-        
         - test : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test, chaque 
         ligne dans cette matrice représente un exemple (ou instance) de test.
-		
         - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
           que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
     """
-    
-    random.seed(1) # Pour avoir les meme nombres aléatoires à chaque initialisation.
+
+    random.seed(1)  # Pour avoir les meme nombres aléatoires à chaque initialisation.
 
     # Vous pouvez utiliser un dictionnaire pour convertir les attributs en numériques 
     # Notez bien qu'on a traduit le symbole "?" pour une valeur numérique
     # Vous pouvez biensur utiliser d'autres valeurs pour ces attributs
-    conversion_labels = {'republican' : 0, 'democrat' : 1, 
-                         'n' : 0, 'y' : 1, '?' : 2} 
+    conversion_labels = {'republican': 0, 'democrat': 1,
+                         'n': 0, 'y': 1, '?': 2}
     raw_data = []
 
     # Le fichier du dataset est dans le dossier datasets en attaché 
@@ -97,8 +95,8 @@ def load_congressional_dataset(train_ratio):
 
     random.shuffle(raw_data)
 
-    train_group = raw_data[:int(len(raw_data)*train_ratio)]
-    test_group = raw_data[int(len(raw_data)*train_ratio):]
+    train_group = raw_data[:int(len(raw_data) * train_ratio)]
+    test_group = raw_data[int(len(raw_data) * train_ratio):]
 
     train = [element[1:] for element in train_group]
     test = [element[1:] for element in test_group]
@@ -106,9 +104,9 @@ def load_congressional_dataset(train_ratio):
     train_labels = [element[0] for element in train_group]
     test_labels = [element[0] for element in test_group]
 
-	# La fonction doit retourner 4 structures de données de type Numpy.
+    # La fonction doit retourner 4 structures de données de type Numpy.
     return np.array(train), np.array(train_labels), np.array(test), np.array(test_labels)
-	
+
 
 def load_monks_dataset(numero_dataset):
     """Cette fonction a pour but de lire le dataset Monks
@@ -139,9 +137,8 @@ def load_monks_dataset(numero_dataset):
         - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
           que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
     """
-	
-	
-	# TODO : votre code ici, vous devez lire les fichiers .train et .test selon l'argument numero_dataset
+
+    # TODO : votre code ici, vous devez lire les fichiers .train et .test selon l'argument numero_dataset
 
     # La fonction doit retourner 4 matrices (ou vecteurs) de type Numpy. 
     return (train, train_labels, test, test_labels)
