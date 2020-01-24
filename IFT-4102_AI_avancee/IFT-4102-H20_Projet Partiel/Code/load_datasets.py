@@ -57,7 +57,7 @@ def load_iris_dataset(train_ratio: float) -> tuple:
     return train, train_labels, test, test_labels
 
 
-def load_congressional_dataset(train_ratio):
+def load_congressional_dataset(train_ratio: float) -> tuple:
     """Cette fonction a pour but de lire le dataset Congressional Voting Records
 
     Args:
@@ -82,27 +82,27 @@ def load_congressional_dataset(train_ratio):
     # Vous pouvez utiliser un dictionnaire pour convertir les attributs en numériques 
     # Notez bien qu'on a traduit le symbole "?" pour une valeur numérique
     # Vous pouvez biensur utiliser d'autres valeurs pour ces attributs
-    conversion_labels = {'republican': 0, 'democrat': 1,
-                         'n': 0, 'y': 1, '?': 2}
-    raw_data = []
+    conversion_labels: dict = {'republican': 0, 'democrat': 1,
+                               'n': 0, 'y': 1, '?': 2}
+    raw_data: list = []
 
     # Le fichier du dataset est dans le dossier datasets en attaché 
     with open("datasets/house-votes-84.data") as file:
         for line in file:
-            if line != "":
-                line = line.replace("\n", "")
+            if line:
+                line: str = line.replace("\n", "")
                 raw_data.append([conversion_labels[element] for element in line.split(",")])
 
     random.shuffle(raw_data)
 
-    train_group = raw_data[:int(len(raw_data) * train_ratio)]
-    test_group = raw_data[int(len(raw_data) * train_ratio):]
+    train_group: list = raw_data[:int(len(raw_data) * train_ratio)]
+    test_group: list = raw_data[int(len(raw_data) * train_ratio):]
 
-    train = [element[1:] for element in train_group]
-    test = [element[1:] for element in test_group]
+    train: list = [element[1:] for element in train_group]
+    test: list = [element[1:] for element in test_group]
 
-    train_labels = [element[0] for element in train_group]
-    test_labels = [element[0] for element in test_group]
+    train_labels: list = [element[0] for element in train_group]
+    test_labels: list = [element[0] for element in test_group]
 
     # La fonction doit retourner 4 structures de données de type Numpy.
     return np.array(train), np.array(train_labels), np.array(test), np.array(test_labels)
