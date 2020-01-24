@@ -80,22 +80,34 @@ def load_congressional_dataset(train_ratio):
     """
     
     random.seed(1) # Pour avoir les meme nombres aléatoires à chaque initialisation.
-    
+
     # Vous pouvez utiliser un dictionnaire pour convertir les attributs en numériques 
     # Notez bien qu'on a traduit le symbole "?" pour une valeur numérique
     # Vous pouvez biensur utiliser d'autres valeurs pour ces attributs
     conversion_labels = {'republican' : 0, 'democrat' : 1, 
                          'n' : 0, 'y' : 1, '?' : 2} 
-    
-    # Le fichier du dataset est dans le dossier datasets en attaché 
-    f = open('datasets/house-votes-84.data', 'r')
+    raw_data = []
 
-	
-    # TODO : le code ici pour lire le dataset
-    
-	
+    # Le fichier du dataset est dans le dossier datasets en attaché 
+    with open("datasets/house-votes-84.data") as file:
+        for line in file:
+            if line != "":
+                line = line.replace("\n", "")
+                raw_data.append([conversion_labels[element] for element in line.split(",")])
+
+    random.shuffle(raw_data)
+
+    train_group = raw_data[:int(len(raw_data)*train_ratio)]
+    test_group = raw_data[int(len(raw_data)*train_ratio):]
+
+    train = [element[1:] for element in train_group]
+    test = [element[1:] for element in test_group]
+
+    train_labels = [element[0] for element in train_group]
+    test_labels = [element[0] for element in test_group]
+
 	# La fonction doit retourner 4 structures de données de type Numpy.
-    return (train, train_labels, test, test_labels)
+    return np.array(train), np.array(train_labels), np.array(test), np.array(test_labels)
 	
 
 def load_monks_dataset(numero_dataset):
