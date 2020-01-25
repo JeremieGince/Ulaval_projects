@@ -25,7 +25,7 @@ class Classifier:
 		"""
 		pass
 		
-	def train(self, train, train_labels): #vous pouvez rajouter d'autres attribus au besoin
+	def train(self, train, train_labels):
 		"""
 		c'est la méthode qui va entrainer votre modèle,
 		train est une matrice de type Numpy et de taille nxm, avec 
