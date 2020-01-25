@@ -33,19 +33,6 @@ def load_iris_dataset(train_ratio: float) -> tuple:
     # Vous pouvez utiliser des valeurs numériques pour les différents types de classes, tel que :
     conversion_labels = {'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2}
 
-    # data: list = list()
-    # data_labels: list = list()
-    # with open('datasets/bezdekIris.data', 'r') as file:
-    #     lines: list = file.readlines()
-    #     random.shuffle(lines)
-    #     for line in lines:
-    #         line_vectorized: list = line.strip().split(',')
-    #         if line_vectorized and line_vectorized[-1] in conversion_labels:
-    #             flower_class: int = conversion_labels[line_vectorized[-1]]
-    #             train_data: list = [float(i) for i in line_vectorized[:-1]]
-    #             data.append(train_data)
-    #             data_labels.append(flower_class)
-
     data, data_labels = extract_raw_data('datasets/bezdekIris.data',
                                          class_index=-1, conversion_labels=conversion_labels)
 
@@ -139,9 +126,6 @@ def load_monks_dataset(numero_dataset):
         - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
           que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
     """
-
-    # TODO : votre code ici, vous devez lire les fichiers .train et .test selon l'argument numero_dataset
-
     assert numero_dataset in {1, 2, 3}, "param: numero_dataset must be in {1, 2, 3}"
 
     train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train',
