@@ -33,18 +33,21 @@ def load_iris_dataset(train_ratio: float) -> tuple:
     # Vous pouvez utiliser des valeurs numériques pour les différents types de classes, tel que :
     conversion_labels = {'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2}
 
-    data: list = list()
-    data_labels: list = list()
-    with open('datasets/bezdekIris.data', 'r') as file:
-        lines: list = file.readlines()
-        random.shuffle(lines)
-        for line in lines:
-            line_vectorized: list = line.strip().split(',')
-            if line_vectorized and line_vectorized[-1] in conversion_labels:
-                flower_class: int = conversion_labels[line_vectorized[-1]]
-                train_data: list = [float(i) for i in line_vectorized[:-1]]
-                data.append(train_data)
-                data_labels.append(flower_class)
+    # data: list = list()
+    # data_labels: list = list()
+    # with open('datasets/bezdekIris.data', 'r') as file:
+    #     lines: list = file.readlines()
+    #     random.shuffle(lines)
+    #     for line in lines:
+    #         line_vectorized: list = line.strip().split(',')
+    #         if line_vectorized and line_vectorized[-1] in conversion_labels:
+    #             flower_class: int = conversion_labels[line_vectorized[-1]]
+    #             train_data: list = [float(i) for i in line_vectorized[:-1]]
+    #             data.append(train_data)
+    #             data_labels.append(flower_class)
+
+    data, data_labels = extract_raw_data('datasets/bezdekIris.data',
+                                         class_index=-1, conversion_labels=conversion_labels)
 
     split_idx: int = int(len(data) * train_ratio)
 
@@ -84,7 +87,7 @@ def load_congressional_dataset(train_ratio: float) -> tuple:
     # Vous pouvez biensur utiliser d'autres valeurs pour ces attributs
     conversion_labels: dict = {'republican': 0, 'democrat': 1,
                                'n': 0, 'y': 1, '?': 2}
-    raw_data: list = []
+    raw_data: list = list()
 
     # Le fichier du dataset est dans le dossier datasets en attaché 
     with open("datasets/house-votes-84.data") as file:
@@ -104,7 +107,6 @@ def load_congressional_dataset(train_ratio: float) -> tuple:
     train_labels: list = [element[0] for element in train_group]
     test_labels: list = [element[0] for element in test_group]
 
-    # La fonction doit retourner 4 structures de données de type Numpy.
     return np.array(train), np.array(train_labels), np.array(test), np.array(test_labels)
 
 
@@ -121,8 +123,8 @@ def load_monks_dataset(numero_dataset):
     Args:
         numero_dataset: lequel des sous problèmes nous voulons charger (1, 2 ou 3 ?)
 		par exemple, si numero_dataset=2, vous devez lire :
-			le fichier monks-2.train contenant les exemples pour l'entrainement
-			et le fichier monks-2.test contenant les exemples pour le test
+		le fichier monks-2.train contenant les exemples pour l'entrainement
+		et le fichier monks-2.test contenant les exemples pour le test
         les fichiers sont tous dans le dossier datasets
     Retours:
         Cette fonction doit retourner 4 matrices de type Numpy, train, train_labels, test, et test_labels
@@ -140,5 +142,59 @@ def load_monks_dataset(numero_dataset):
 
     # TODO : votre code ici, vous devez lire les fichiers .train et .test selon l'argument numero_dataset
 
-    # La fonction doit retourner 4 matrices (ou vecteurs) de type Numpy. 
-    return (train, train_labels, test, test_labels)
+    assert numero_dataset in {1, 2, 3}, "param: numero_dataset must be in {1, 2, 3}"
+
+    train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train',
+                                                             class_index=0, index_to_remove=-1, delimiter=' ')
+    test_raw_data, test_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.test',
+                                                           class_index=0, index_to_remove=-1, delimiter=' ')
+
+    train: np.ndarray = np.array(train_raw_data)
+    train_labels: np.ndarray = np.array(train_raw_data_labels)
+
+    test: np.ndarray = np.array(test_raw_data)
+    test_labels: np.ndarray = np.array(test_raw_data_labels)
+
+    return train, train_labels, test, test_labels
+
+
+def extract_raw_data(filename: str, class_index: int = -1, conversion_labels=None, randomize: bool = True,
+                     index_to_remove=None, delimiter: str = ','):
+    if conversion_labels is None:
+        conversion_labels = {str(i): i for i in range(10)}
+
+    if index_to_remove is None:
+        index_to_remove = []
+    elif isinstance(index_to_remove, int):
+        index_to_remove = [index_to_remove]
+
+    if class_index not in index_to_remove:
+        index_to_remove.append(class_index)
+
+    raw_data: list = list()
+    raw_data_labels: list = list()
+    with open(filename, 'r') as file:
+        lines: list = file.readlines()
+        if randomize:
+            random.shuffle(lines)
+        for line in lines:
+            try:
+                line_vectorized: list = line.strip().split(delimiter)
+                if line_vectorized:
+                    cls = line_vectorized[class_index]
+
+                    for idx in reversed(sorted(index_to_remove)):
+                        line_vectorized.pop(idx)
+
+                    line_data: list = [float(e) for e in line_vectorized]
+                    raw_data.append(line_data)
+                    raw_data_labels.append(conversion_labels[cls] if cls in conversion_labels else cls)
+            except Exception:
+                pass
+
+    return raw_data, raw_data_labels
+
+
+if __name__ == '__main__':
+    # load_iris_dataset(0.7)
+    load_monks_dataset(1)
