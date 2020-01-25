@@ -15,7 +15,7 @@ import numpy as np
 # BayesNaif pour le modèle bayesien naif
 # Knn pour le modèle des k plus proches voisins
 
-class Classifier: #nom de la class à changer
+class Classifier:
 
 	def __init__(self, **kwargs):
 		"""
@@ -23,7 +23,7 @@ class Classifier: #nom de la class à changer
 		Vous pouvez passer d'autre paramètres au besoin,
 		c'est à vous d'utiliser vos propres notations
 		"""
-		
+		pass
 		
 	def train(self, train, train_labels): #vous pouvez rajouter d'autres attribus au besoin
 		"""
@@ -52,6 +52,7 @@ class Classifier: #nom de la class à changer
 		Bien entendu ces tests doivent etre faits sur les données d'entrainement
 		nous allons faire d'autres tests sur les données de test dans la méthode test()
 		"""
+		raise NotImplementedError()
 
 	def predict(self, exemple, label):
 		"""
@@ -62,6 +63,7 @@ class Classifier: #nom de la class à changer
 		alors l'exemple est bien classifié, si non c'est une missclassification
 
 		"""
+		raise NotImplementedError()
 
 	def test(self, test, test_labels):
 		"""
@@ -84,7 +86,4 @@ class Classifier: #nom de la class à changer
 		Bien entendu ces tests doivent etre faits sur les données de test seulement
 		
 		"""
-	
-	
-	# Vous pouvez rajouter d'autres méthodes et fonctions,
-	# il suffit juste de les commenter.
+		raise NotImplementedError()
