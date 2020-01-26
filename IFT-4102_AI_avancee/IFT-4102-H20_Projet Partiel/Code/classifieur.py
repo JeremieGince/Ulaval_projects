@@ -88,8 +88,12 @@ class Classifier:
 		"""
 		raise NotImplementedError()
 
-	def getAccuracy(self):
-		raise NotImplementedError()
+	def getAccuracy(self, test=None, test_labels=None):
+		accuracy: float = 0
+		for idx, exemple in enumerate(test):
+			prediction, check = self.predict(exemple, test_labels[idx])
+			accuracy += int(check)
+		return 100 * (accuracy / len(test))
 
 	def getConfusionMatrix(self):
 		raise NotImplementedError()
