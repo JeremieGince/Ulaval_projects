@@ -13,7 +13,7 @@ class Knn(Classifier):
         self.test_vector_to_label: util.MapHashVecLabel = util.MapHashVecLabel()
         self._Kmin: int = 1
         self.K: int = Knn.defaultK
-        self.Kmax: int = 25
+        self._Kmax: int = 25
 
     def setData(self, train, train_labels, test, test_labels):
         self.setTrainData(train, train_labels)
@@ -27,19 +27,31 @@ class Knn(Classifier):
         assert len(test) == len(test_labels)
         self.test_vector_to_label = util.MapHashVecLabel({str(test[i]): test_labels[i] for i in range(len(test))})
 
+    def setKmin(self, new_Kmin: int):
+        assert new_Kmin >= 1
+        self._Kmin = new_Kmin
+
+    def getKmin(self) -> int:
+        return self._Kmin
+
+    def setKmax(self, new_Kmax: int):
+        assert new_Kmax >= 1
+        self._Kmax = new_Kmax
+
+    def getKmax(self) -> int:
+        return self._Kmax
+
     def train(self, train, train_labels, verbose: bool = True, findBestKWithCrossValidation: bool = False):
         self.setTrainData(train, train_labels)
 
         if findBestKWithCrossValidation:
             kToacc: dict = {k: self.crossValidation(train, train_labels, cv=5, k=k)
-                            for k in range(self._Kmin, self.Kmax)}
+                            for k in range(self._Kmin, self._Kmax)}
             self.K = max(kToacc, key=kToacc.get)
 
-        if verbose:
-            print(f"\n Train results: \n"
-                  f"Train set size: {len(train)} \n"
-                  f"Chosen K: {self.K} \n")
-        return self.test(train, train_labels, verbose, False)
+        displayArgs = {"dataSize": len(train), "title": "Train results", "preMessage": f"Chosen K: {self.K} \n"}
+
+        return self.test(train, train_labels, verbose, displayArgs)
 
     def predict(self, exemple, label):
         # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
@@ -61,24 +73,9 @@ class Knn(Classifier):
         prediction_cls: int = max(nearest_classes_count, key=nearest_classes_count.get)
         return prediction_cls, prediction_cls == label
 
-    def test(self, test, test_labels, verbose: bool = True, testMessage: bool = True) -> tuple:
+    def test(self, test, test_labels, verbose: bool = True, displayArgs: dict = None) -> tuple:
         self.setTestData(test, test_labels)
-        confusionMatrix: np.ndarray = self.getConfusionMatrix(test, test_labels)
-        accuracy: float = self.getAccuracy(test, test_labels)
-        precision = self.getPrecision(test, test_labels)
-        recall = self.getRecall(test, test_labels)
-
-        if verbose:
-            if testMessage:
-                print(f"\n Test results: \n"
-                      f"Test set size: {len(test)} \n")
-            print(f"Confusion Matrix: \n {confusionMatrix}",
-                  f"Accuracy: {accuracy:.2f} %",
-                  f"Precision: {precision:.5f}",
-                  f"Recall: {recall:.5f}",
-                  sep='\n')
-
-        return confusionMatrix, accuracy, precision, recall
+        return Classifier.test(self, test, test_labels, verbose, displayArgs)
 
     def getAccuracy(self, test=None, test_labels=None):
         if test is None or test_labels is None:
@@ -120,7 +117,7 @@ if __name__ == '__main__':
 
     startTime = time.time()
     train_ratio: float = 0.9
-    findBestKWithCrossValidation: bool = True
+    findBestKWithCrossValidation: bool = False
 
     print(f"Train ratio: {train_ratio} \n")
 
