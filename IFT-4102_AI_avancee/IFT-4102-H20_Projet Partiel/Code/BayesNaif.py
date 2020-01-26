@@ -34,33 +34,31 @@ class Nbc(Classifier):
                     self.probability_of_each_feature[ids][i][str(unique_features[j])] = count[j]/len(column)
 
     def predict(self, exemple, label):
-        probs = [[], []]
-
+        probs = []
+        for i in range(self.number_of_classes):
+            probs.append([])
         i = 0
         for feature in exemple:
-            for j in range(2):
+            for j in range(self.number_of_classes):
                 try:
                     probs[j].append(self.probability_of_each_feature[j][i][str(feature)])
                 except:
                     probs[j].append(0)
             i +=1
 
-        prob1 = self.probability_of_each_class['0']*np.prod(probs[0])
-        prob2 = self.probability_of_each_class['1']*np.prod(probs[1])
+        probabilite_final = []
+        for i in range(self.number_of_classes):
+            probabilite_final.append(self.probability_of_each_class[str(i)]*np.prod(probs[i]))
 
-        isZero = prob1 > prob2
+        return probabilite_final.index(max(probabilite_final))
 
-        if isZero and label == 0:
-            return True
-        elif not isZero and label == 1:
-            return True
-        else:
-            return False
+
 
 
     def test(self, test, test_labels):
         count = 0
         for i in range (len(test)):
-            if self.predict(test[i], test_labels[i]):
+            prediction = self.predict(test[i], test_labels[i])
+            if prediction == test_labels[i]:
                 count += 1
         print(count/len(test_labels))
