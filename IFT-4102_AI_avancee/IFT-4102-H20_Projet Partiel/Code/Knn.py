@@ -81,7 +81,7 @@ class Knn(Classifier):
     def getKmin(self) -> int:
         """
         Getter of Kmin attribute.
-        :return: The value of Kmin. (int)
+        :return: The value of Kmin. :rtype int
         """
         return self._Kmin
 
@@ -97,7 +97,7 @@ class Knn(Classifier):
     def getKmax(self) -> int:
         """
         Getter of Kmax attribute.
-        :return: The value of Kmax. (int)
+        :return: The value of Kmax. :rtype int
         """
         return self._Kmax
 
