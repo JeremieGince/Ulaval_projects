@@ -6,7 +6,7 @@ class Nbc(Classifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.number_of_classes: int = 0
-        self.probability_of_each_class: list = list()
+        self.probability_of_each_class: dict = dict()
         self.probability_of_each_feature: list = list()
 
     def train(self, train, train_labels):
@@ -15,7 +15,7 @@ class Nbc(Classifier):
 
         self.number_of_classes = len(uniques)
         for ids in uniques:
-            self.probability_of_each_class.insert(ids, counts[ids]/len(train_labels))
+            self.probability_of_each_class[str(ids)] = counts[ids]/len(train_labels)
 
         for i in range(len(uniques)):
             self.probability_of_each_feature.append([])
@@ -29,23 +29,38 @@ class Nbc(Classifier):
             for i in range(data.shape[1]):
                 column = data[:, i]
                 unique_features, count = np.unique(column, return_counts=True)
+                self.probability_of_each_feature[ids].append({})
                 for j in range(len(unique_features)):
-                    self.probability_of_each_feature[ids].insert(unique_features[j], [count[k]/len(column) for k in range(len(count)) ])
-
-        print(self.probability_of_each_feature)
+                    self.probability_of_each_feature[ids][i][str(unique_features[j])] = count[j]/len(column)
 
     def predict(self, exemple, label):
-        print(self.probability_of_each_feature)
         probs = [[], []]
-        print(exemple)
-        for feature in exemple:
-            for i in range(len(exemple)):
-                for j in range(2):
-                    probs[j].append(self.probability_of_each_feature[j][i][feature])
-        print(probs)
 
+        i = 0
+        for feature in exemple:
+            for j in range(2):
+                try:
+                    probs[j].append(self.probability_of_each_feature[j][i][str(feature)])
+                except:
+                    probs[j].append(0)
+            i +=1
+
+        prob1 = self.probability_of_each_class['0']*np.prod(probs[0])
+        prob2 = self.probability_of_each_class['1']*np.prod(probs[1])
+
+        isZero = prob1 > prob2
+
+        if isZero and label == 0:
+            return True
+        elif not isZero and label == 1:
+            return True
+        else:
+            return False
 
 
     def test(self, test, test_labels):
+        count = 0
         for i in range (len(test)):
-            self.predict(test[i], test_labels[i])
+            if self.predict(test[i], test_labels[i]):
+                count += 1
+        print(count/len(test_labels))
