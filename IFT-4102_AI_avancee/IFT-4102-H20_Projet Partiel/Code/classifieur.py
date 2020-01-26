@@ -1,19 +1,5 @@
-"""
-Vous allez definir une classe pour chaque algorithme que vous allez développer,
-votre classe doit contenit au moins les 3 methodes definies ici bas, 
-    * train 	: pour entrainer le modèle sur l'ensemble d'entrainement
-    * predict 	: pour prédire la classe d'un exemple donné
-    * test 		: pour tester sur l'ensemble de test
-vous pouvez rajouter d'autres méthodes qui peuvent vous etre utiles, mais moi
-je vais avoir besoin de tester les méthodes test, predict et test de votre code.
-"""
-
 import numpy as np
 
-
-# le nom de votre classe
-# BayesNaif pour le modèle bayesien naif
-# Knn pour le modèle des k plus proches voisins
 
 class Classifier:
     """
