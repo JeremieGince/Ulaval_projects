@@ -59,3 +59,34 @@ class Nbc(Classifier):
             if prediction == test_labels[i]:
                 count += 1
         print(count/len(test_labels))
+
+class NbcGaussian(Nbc):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.number_of_classes: int = 0
+        self.probability_of_each_class: dict = dict()
+        self.probability_of_each_feature: list = list()
+
+    def train(self, train, train_labels):
+        assert len(train) == len(train_labels)
+        uniques, counts = np.unique(train_labels, return_counts=True)
+
+        self.number_of_classes = len(uniques)
+        for ids in uniques:
+            self.probability_of_each_class[str(ids)] = counts[ids]/len(train_labels)
+
+        for i in range(len(uniques)):
+            self.probability_of_each_feature.append([])
+
+        label_pairing = []
+        for ids in uniques:
+            label_pairing.insert(ids, [i for i in range(len(train_labels)) if train_labels[i] == ids])
+
+        for ids in uniques:
+            data = train[label_pairing[ids], :]
+            for i in range(data.shape[1]):
+                column = data[:, i]
+                unique_features, count = np.unique(column, return_counts=True)
+                self.probability_of_each_feature[ids].append({})
+                for j in range(len(unique_features)):
+                    self.probability_of_each_feature[ids][i][str(unique_features[j])] = count[j]/len(column)

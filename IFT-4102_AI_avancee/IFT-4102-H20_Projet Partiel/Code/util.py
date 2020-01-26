@@ -1,5 +1,5 @@
 import numpy as np
-
+from math import pi, exp
 
 def euclidean_distance(vector0: np.ndarray, vector1: np.ndarray) -> float:
     return np.sqrt(np.sum((vector1-vector0)**2))
@@ -40,3 +40,14 @@ class MapHashVecLabel:
     def _strvecTonpvec(self, strvec):
         strvec = strvec.replace('[', '').replace(']', '')
         return np.fromstring(strvec, sep=' ')
+
+class GaussianDistribution:
+    def __init__(self, average, variance):
+        self.variance = variance
+        self.average = average
+
+    def evaluate(self, value):
+        alpha = 1.0/(2*pi*self.variance)**(1/2.0)
+        second_term = exp(((-1.0)/(2*self.variance))*((value - self.average))**2)
+        return alpha*second_term
+
