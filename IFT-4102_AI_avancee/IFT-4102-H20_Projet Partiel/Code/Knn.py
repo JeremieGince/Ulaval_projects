@@ -115,34 +115,46 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    startTime = time.time()
     train_ratio: float = 0.9
     findBestKWithCrossValidation: bool = True
 
-    print(f"Train ratio: {train_ratio} \n")
+    print(f"Train ratio: {train_ratio}")
+    print(f"findBestKWithCrossValidation: {findBestKWithCrossValidation}")
+    print("\n")
 
     print('-' * 175)
     print(f"Iris dataset classification: \n")
-    train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_ratio)
-    knn = Knn()
-    knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-    knn.test(test, test_labels)
+    startTime = time.time()
+
+    iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(train_ratio)
+    iris_knn = Knn()
+    iris_knn.train(iris_train, iris_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
+    iris_knn.test(iris_test, iris_test_labels)
+
+    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
 
     print('-'*175)
     print(f"Congressional dataset classification: \n")
-    train, train_labels, test, test_labels = load_datasets.load_congressional_dataset(train_ratio)
-    knn = Knn()
-    knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-    knn.test(test, test_labels)
+    startTime = time.time()
+
+    cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(train_ratio)
+    cong_knn = Knn()
+    cong_knn.train(cong_train, cong_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
+    cong_knn.test(cong_test, cong_test_labels)
+
+    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
 
     print('-' * 175)
     for i in range(3):
         print(f"Monks({i+1}) dataset classification: \n")
-        train, train_labels, test, test_labels = load_datasets.load_monks_dataset(i+1)
-        knn = Knn()
-        knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-        knn.test(test, test_labels)
+        startTime = time.time()
+
+        monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i+1)
+        monks_knn = Knn()
+        monks_knn.train(monks_train, monks_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
+        monks_knn.test(monks_test, monks_test_labels)
+
+        print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
 
         print('-' * 175)
 
-    print(f"\n --- Elapse time: {time.time()-startTime:.2f} s --- \n")
