@@ -1,9 +1,8 @@
 import numpy as np
 import sys
 import load_datasets
-import BayesNaif # importer la classe du classifieur bayesien
-import Knn # importer la classe du Knn
-#importer d'autres fichiers et classes si vous en avez développés
+import BayesNaif  # importer la classe du classifieur bayesien
+import Knn  # importer la classe du Knn
 
 
 """
