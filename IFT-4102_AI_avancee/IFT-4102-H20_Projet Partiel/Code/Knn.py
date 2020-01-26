@@ -42,13 +42,13 @@ class Knn(Classifier):
         # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
         return self.naivePrediction(exemple, label)
 
-    def naivePrediction(self, exemple, label):
+    def naivePrediction(self, exemple, label, distanceFunc=util.euclidean_distance):
         train_data: util.MapHashVecLabel = self.train_vector_to_label.deepcopy()
         neighbors: list = list()
 
         while train_data:
             train_vector, cls = train_data.popitem()
-            distance: float = util.euclidean_distance(exemple, train_vector)
+            distance: float = distanceFunc(exemple, train_vector)
             neighbor: tuple = (train_vector, distance, cls)
             neighbors.append(neighbor)
 
