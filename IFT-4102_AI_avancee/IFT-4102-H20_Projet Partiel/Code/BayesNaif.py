@@ -52,9 +52,6 @@ class Nbc(Classifier):
 
         return probabilite_final.index(max(probabilite_final))
 
-
-
-
     def test(self, test, test_labels):
         count = 0
         for i in range (len(test)):
