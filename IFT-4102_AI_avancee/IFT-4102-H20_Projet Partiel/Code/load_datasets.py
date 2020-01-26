@@ -162,8 +162,11 @@ def extract_raw_data(filename: str, class_index: int = -1, conversion_labels=Non
         if randomize:
             random.shuffle(lines)
         for line in lines:
+            line: str = line.replace('\n', '').strip()
+            if not line:
+                continue
             try:
-                line_vectorized: list = line.strip().split(delimiter)
+                line_vectorized: list = line.split(delimiter)
                 if line_vectorized:
                     cls = line_vectorized[class_index]
 
@@ -175,10 +178,10 @@ def extract_raw_data(filename: str, class_index: int = -1, conversion_labels=Non
                     raw_data_labels.append(conversion_labels[cls] if cls in conversion_labels else cls)
             except Exception:
                 pass
-
     return raw_data, raw_data_labels
 
 
 if __name__ == '__main__':
-    # load_iris_dataset(0.7)
-    load_monks_dataset(1)
+    train, train_labels, test, test_labels = load_iris_dataset(0.7)
+    print(train)
+    # load_monks_dataset(1)
