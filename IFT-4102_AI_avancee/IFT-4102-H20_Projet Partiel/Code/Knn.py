@@ -4,44 +4,105 @@ import util
 
 
 class Knn(Classifier):
+    """
+    Knn is a classifier used to classify numeric data by classes.
 
-    defaultK: int = 5
+    reference: https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
+    """
+
+    defaultK: int = 5  # Default value of K, K is the number of nearest neighbors used to classify data.
 
     def __init__(self, **kwargs):
+        """
+        Constructor of Knn.
+        :param kwargs: {
+            Kmin: initialisation of the attribute _Kmin, must be higher than 0. (int),
+            Kmax: initialisation of the attribute _Kmax, must be higher than 0. (int),
+            K: initialisation of the attribute K, must be higher than 0. (int)
+        }
+
+        Attributes
+        ----------
+        :attr train_vector_to_label: Map vectors train data to it's label {data -> label} (MapHashVecLabel)
+        :attr test_vector_to_label: Map vectors test data to it's label {data -> label} (MapHashVecLabel)
+        :attr _Kmin: Value of the minimum K used in train method to fit the best K value. (int)
+        :attr _Kmax: Value of the maximum K used in train method to fit the best K value. (int)
+        :attr K: Value of the parameter K representing the number of nearest neighbors used to classify data. (int)
+
+        """
         super().__init__(**kwargs)
         self.train_vector_to_label: util.MapHashVecLabel = util.MapHashVecLabel()
         self.test_vector_to_label: util.MapHashVecLabel = util.MapHashVecLabel()
-        self._Kmin: int = 1
-        self.K: int = Knn.defaultK
-        self._Kmax: int = 25
+        self._Kmin: int = kwargs["Kmin"] if "Kmin" in kwargs else 1
+        self.K: int = kwargs["K"] if "K" in kwargs else Knn.defaultK
+        self._Kmax: int = kwargs["Kmax"] if "Kmax" in kwargs else 25
 
-    def setData(self, train, train_labels, test, test_labels):
+    def setData(self, train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, test_labels: np.ndarray):
+        """
+        Put the data in memory by setting the attribute train_vector_to_label and test_vector_to_label.
+        :param train: Array of training data (np.ndarray)
+        :param train_labels: Array of the labels associated with the training data (np.ndarray)
+        :param test: Array of testing data (np.ndarray)
+        :param test_labels: Array of the labels associated with the testing data (np.ndarray)
+        :return: None
+        """
         self.setTrainData(train, train_labels)
         self.setTestData(test, test_labels)
 
-    def setTrainData(self, train, train_labels):
+    def setTrainData(self, train: np.ndarray, train_labels: np.ndarray):
+        """
+        Put the data in memory by setting the attribute train_vector_to_label.
+        :param train: Array of training data (np.ndarray)
+        :param train_labels: Array of the labels associated with the training data (np.ndarray)
+        :return: None
+        """
         assert len(train) == len(train_labels)
         self.train_vector_to_label = util.MapHashVecLabel({str(train[i]): train_labels[i] for i in range(len(train))})
 
-    def setTestData(self, test, test_labels):
+    def setTestData(self, test: np.ndarray, test_labels: np.ndarray):
+        """
+        Put the data in memory by setting the attribute test_vector_to_label.
+        :param test: Array of testing data (np.ndarray)
+        :param test_labels: Array of the labels associated with the testing data (np.ndarray)
+        :return: None
+        """
         assert len(test) == len(test_labels)
         self.test_vector_to_label = util.MapHashVecLabel({str(test[i]): test_labels[i] for i in range(len(test))})
 
     def setKmin(self, new_Kmin: int):
+        """
+        Setter of Kmin attribute.
+        :param new_Kmin: The new value of Kmin. (int)
+        :return: None
+        """
         assert new_Kmin >= 1
         self._Kmin = new_Kmin
 
     def getKmin(self) -> int:
+        """
+        Getter of Kmin attribute.
+        :return: The value of Kmin. (int)
+        """
         return self._Kmin
 
     def setKmax(self, new_Kmax: int):
+        """
+        Setter of Kmax attribute.
+        :param new_Kmax: The new value of Kmax. (int)
+        :return: None
+        """
         assert new_Kmax >= 1
         self._Kmax = new_Kmax
 
     def getKmax(self) -> int:
+        """
+        Getter of Kmax attribute.
+        :return: The value of Kmax. (int)
+        """
         return self._Kmax
 
-    def train(self, train, train_labels, verbose: bool = True, findBestKWithCrossValidation: bool = False):
+    def train(self, train: np.ndarray, train_labels: np.ndarray,
+              verbose: bool = True, findBestKWithCrossValidation: bool = False) -> tuple:
         self.setTrainData(train, train_labels)
 
         if findBestKWithCrossValidation:
