@@ -87,3 +87,15 @@ class Classifier:
 		
 		"""
 		raise NotImplementedError()
+
+	def getAccuracy(self):
+		raise NotImplementedError()
+
+	def getConfusionMatrix(self):
+		raise NotImplementedError()
+
+	def getPrecision(self):
+		raise NotImplementedError()
+
+	def getRecall(self):
+		raise NotImplementedError()
