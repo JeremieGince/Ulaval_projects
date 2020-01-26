@@ -88,15 +88,22 @@ class Classifier:
 		"""
 		raise NotImplementedError()
 
-	def getAccuracy(self, test=None, test_labels=None):
+	def getAccuracy(self, test, test_labels) -> float:
 		accuracy: float = 0
 		for idx, exemple in enumerate(test):
 			prediction, check = self.predict(exemple, test_labels[idx])
 			accuracy += int(check)
 		return 100 * (accuracy / len(test))
 
-	def getConfusionMatrix(self):
-		raise NotImplementedError()
+	def getConfusionMatrix(self, test, test_labels) -> np.ndarray:
+		labels: list = sorted(list(set(test_labels)))
+		labelsToCountclassification: dict = {lbl: [0 for _ in labels] for lbl in labels}
+		for idx, example in enumerate(test):
+			prediction, check = self.predict(example, test_labels[idx])
+			labelsToCountclassification[test_labels[idx]][labels.index(prediction)] += 1
+
+		confusionMatrix: np.ndarray = np.array([labelsToCountclassification[lbl] for lbl in labels]).transpose()
+		return confusionMatrix
 
 	def getPrecision(self):
 		raise NotImplementedError()
