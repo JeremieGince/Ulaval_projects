@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     startTime = time.time()
     train_ratio: float = 0.9
-    findBestKWithCrossValidation: bool = False
+    findBestKWithCrossValidation: bool = True
 
     print(f"Train ratio: {train_ratio} \n")
 
