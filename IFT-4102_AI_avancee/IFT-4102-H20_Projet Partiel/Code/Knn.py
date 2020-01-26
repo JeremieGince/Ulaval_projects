@@ -27,16 +27,19 @@ class Knn(Classifier):
         assert len(test) == len(test_labels)
         self.test_vector_to_label = util.MapHashVecLabel({str(test[i]): test_labels[i] for i in range(len(test))})
 
-    def train(self, train, train_labels, verbose: bool = True):
+    def train(self, train, train_labels, verbose: bool = True, findBestKWithCrossValidation: bool = False):
         self.setTrainData(train, train_labels)
 
-        kToacc: dict = {k: self.crossValidation(train, train_labels, cv=5, k=k) for k in range(self._Kmin, self.Kmax)}
-        self.K = max(kToacc, key=kToacc.get)
+        if findBestKWithCrossValidation:
+            kToacc: dict = {k: self.crossValidation(train, train_labels, cv=5, k=k)
+                            for k in range(self._Kmin, self.Kmax)}
+            self.K = max(kToacc, key=kToacc.get)
 
         if verbose:
             print(f"\n Train results: \n"
+                  f"Train set size: {len(train)} \n"
                   f"Chosen K: {self.K} \n")
-        return self.test(train, train_labels, verbose)
+        return self.test(train, train_labels, verbose, False)
 
     def predict(self, exemple, label):
         # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
@@ -58,39 +61,29 @@ class Knn(Classifier):
         prediction_cls: int = max(nearest_classes_count, key=nearest_classes_count.get)
         return prediction_cls, prediction_cls == label
 
-    def test(self, test, test_labels, verbose: bool = True):
+    def test(self, test, test_labels, verbose: bool = True, testMessage: bool = True) -> tuple:
         self.setTestData(test, test_labels)
-        confusionMatrix = self.getConfusionMatrix()
-        accuracy: float = self.getAccuracy()
-        precision = self.getPrecision()
-        recall = self.getRecall()
+        confusionMatrix: np.ndarray = self.getConfusionMatrix(test, test_labels)
+        accuracy: float = self.getAccuracy(test, test_labels)
+        precision = self.getPrecision(test, test_labels)
+        recall = self.getRecall(test, test_labels)
 
         if verbose:
-            print(f"Confusion Matrix: {confusionMatrix}",
+            if testMessage:
+                print(f"\n Test results: \n"
+                      f"Test set size: {len(test)} \n")
+            print(f"Confusion Matrix: \n {confusionMatrix}",
                   f"Accuracy: {accuracy:.2f} %",
-                  f"Precision: {precision}",
-                  f"Recall: {recall}",
+                  f"Precision: {precision:.5f}",
+                  f"Recall: {recall:.5f}",
                   sep='\n')
 
         return confusionMatrix, accuracy, precision, recall
 
-    def getConfusionMatrix(self):
-        pass
-
-    def getPrecision(self):
-        pass
-
-    def getRecall(self):
-        pass
-
     def getAccuracy(self, test=None, test_labels=None):
         if test is None or test_labels is None:
             test, test_labels = self.test_vector_to_label.asLists()
-        accuracy: float = 0
-        for idx, exemple in enumerate(test):
-            prediction, check = self.predict(exemple, test_labels[idx])
-            accuracy += int(check)
-        return 100*(accuracy/len(test))
+        return Classifier.getAccuracy(self, test, test_labels)
 
     def crossValidation(self, train, train_labels, cv: int = 5, k: int = defaultK):
         di: int = int(len(train)/cv)
@@ -123,22 +116,26 @@ class Knn(Classifier):
 
 if __name__ == '__main__':
     import load_datasets
+    import time
 
+    startTime = time.time()
+    train_ratio: float = 0.9
+    findBestKWithCrossValidation: bool = True
+
+    print(f"Train ratio: {train_ratio} \n")
+
+    print('-' * 175)
     print(f"Iris dataset classification: \n")
-    train, train_labels, test, test_labels = load_datasets.load_iris_dataset(0.7)
+    train, train_labels, test, test_labels = load_datasets.load_iris_dataset(train_ratio)
     knn = Knn()
-    knn.setData(train, train_labels, test, test_labels)
-    knn.train(train, train_labels)
-    print("\n Test results: \n")
+    knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     knn.test(test, test_labels)
 
     print('-'*175)
     print(f"Congressional dataset classification: \n")
-    train, train_labels, test, test_labels = load_datasets.load_congressional_dataset(0.7)
+    train, train_labels, test, test_labels = load_datasets.load_congressional_dataset(train_ratio)
     knn = Knn()
-    knn.setData(train, train_labels, test, test_labels)
-    knn.train(train, train_labels)
-    print("\n Test results: \n")
+    knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     knn.test(test, test_labels)
 
     print('-' * 175)
@@ -146,9 +143,9 @@ if __name__ == '__main__':
         print(f"Monks({i+1}) dataset classification: \n")
         train, train_labels, test, test_labels = load_datasets.load_monks_dataset(i+1)
         knn = Knn()
-        knn.setData(train, train_labels, test, test_labels)
-        knn.train(train, train_labels)
-        print("\n Test results: \n")
+        knn.train(train, train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
         knn.test(test, test_labels)
 
         print('-' * 175)
+
+    print(f"\n --- Elapse time: {time.time()-startTime:.2f} s --- \n")

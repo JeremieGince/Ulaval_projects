@@ -88,14 +88,15 @@ class Classifier:
 		"""
 		raise NotImplementedError()
 
-	def getAccuracy(self, test, test_labels) -> float:
+	def getAccuracy(self, test: np.ndarray, test_labels: np.ndarray) -> float:
 		accuracy: float = 0
 		for idx, exemple in enumerate(test):
 			prediction, check = self.predict(exemple, test_labels[idx])
 			accuracy += int(check)
 		return 100 * (accuracy / len(test))
 
-	def getConfusionMatrix(self, test, test_labels) -> np.ndarray:
+	def getConfusionMatrix(self, test: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
+		# https://en.wikipedia.org/wiki/Confusion_matrix
 		labels: list = sorted(list(set(test_labels)))
 		labelsToCountclassification: dict = {lbl: [0 for _ in labels] for lbl in labels}
 		for idx, example in enumerate(test):
@@ -105,8 +106,16 @@ class Classifier:
 		confusionMatrix: np.ndarray = np.array([labelsToCountclassification[lbl] for lbl in labels]).transpose()
 		return confusionMatrix
 
-	def getPrecision(self):
-		raise NotImplementedError()
+	def getPrecision(self, test: np.ndarray, test_labels: np.ndarray) -> np.float:
+		# https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+		confusionMatrix: np.ndarray = self.getConfusionMatrix(test, test_labels)
+		precisionVector: np.ndarray = np.array([vector[idx]/np.sum(vector)
+												for idx, vector in enumerate(confusionMatrix)])
+		return precisionVector.mean()
 
-	def getRecall(self):
-		raise NotImplementedError()
+	def getRecall(self, test: np.ndarray, test_labels: np.ndarray) -> np.float:
+		# https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+		confusionMatrix_T: np.ndarray = self.getConfusionMatrix(test, test_labels).transpose()
+		recallVector: np.ndarray = np.array([vector[idx]/np.sum(vector)
+												for idx, vector in enumerate(confusionMatrix_T)])
+		return recallVector.mean()
