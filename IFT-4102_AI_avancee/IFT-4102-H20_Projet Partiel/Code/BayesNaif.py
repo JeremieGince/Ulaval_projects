@@ -50,21 +50,15 @@ class Nbc(Classifier):
         probabilite_final = []
         for i in range(self.number_of_classes):
             probabilite_final.append(self.probability_of_each_class[str(i)]*np.prod(probs[i]))
-
-        return probabilite_final.index(max(probabilite_final))
+        res = probabilite_final.index(max(probabilite_final))
+        return res, res == label
 
     def test(self, test, test_labels):
-        count = 0
-        for i in range (len(test)):
-            prediction = self.predict(test[i], test_labels[i])
-            if prediction == test_labels[i]:
-                count += 1
-        print(count/len(test_labels))
+        return Classifier.test(self, test, test_labels)
 
 class NbcGaussian(Nbc):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.gauss = []
 
     def train(self, train, train_labels):
         assert len(train) == len(train_labels)
@@ -87,7 +81,6 @@ class NbcGaussian(Nbc):
                 column = data[:, i]
                 var = np.var(column)
                 average = np.average(column)
-                print(average)
                 self.probability_of_each_feature[ids].append(GaussianDistribution(average, var))
 
     def predict(self, exemple, label):
@@ -103,13 +96,53 @@ class NbcGaussian(Nbc):
         probabilite_final = []
         for i in range(self.number_of_classes):
             probabilite_final.append(self.probability_of_each_class[str(i)]*np.prod(probs[i]))
-        
-        return probabilite_final.index(max(probabilite_final))
+        prediction = probabilite_final.index(max(probabilite_final))
+        return prediction, prediction == label
 
     def test(self, test, test_labels):
-        count = 0
-        for i in range (len(test)):
-            prediction = self.predict(test[i], test_labels[i])
-            if prediction == test_labels[i]:
-                count += 1
-        print(count/len(test_labels))
+        return Classifier.test(self, test, test_labels)
+
+if __name__ == '__main__':
+    import load_datasets
+    import time
+
+    train_ratio: float = 0.9
+
+    print(f"Train ratio: {train_ratio}")
+    print("\n")
+
+    print('-' * 175)
+    print(f"Iris dataset classification: \n")
+    startTime = time.time()
+
+    iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(train_ratio)
+    iris_knn = NbcGaussian()
+    iris_knn.train(iris_train, iris_train_labels)
+    iris_knn.test(iris_test, iris_test_labels)
+
+    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+
+    print('-'*175)
+    print(f"Congressional dataset classification: \n")
+    startTime = time.time()
+
+    cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(train_ratio)
+    cong_knn = Nbc()
+    cong_knn.train(cong_train, cong_train_labels)
+    cong_knn.test(cong_test, cong_test_labels)
+
+    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+
+    print('-' * 175)
+    for i in range(3):
+        print(f"Monks({i+1}) dataset classification: \n")
+        startTime = time.time()
+
+        monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i+1)
+        monks_knn = Nbc()
+        monks_knn.train(monks_train, monks_train_labels)
+        monks_knn.test(monks_test, monks_test_labels)
+
+        print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+
+        print('-' * 175)
