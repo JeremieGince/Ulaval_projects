@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import skimage as sk
 
 
 if __name__ == '__main__':
