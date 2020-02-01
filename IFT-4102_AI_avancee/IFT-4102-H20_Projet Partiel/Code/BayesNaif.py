@@ -3,6 +3,38 @@ import numpy as np
 from util import GaussianDistribution
 
 
+
+def ReturnDictionnaryAsProbabilities(d, insertIn, index = -1):
+    string = ""
+    for k, v in d.items():
+            string += insertIn % (k, v)
+    return string
+
+def DisplayTrainResultGaussian(l):
+    count = 0
+    for item in l:
+        print("Probabilities knowing " + str(count))
+        subcount = 0
+        for subitem in item:
+            print(f"P({subcount}) = {subitem}")
+            subcount += 1
+        count +=1
+
+def displayTrainingResults(toDisplay):
+    for internal in toDisplay:
+        if type(internal) is dict:
+            print("Probabilities for feature number " + str(toDisplay.index(internal)))
+            print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %s\n"))
+        if type(internal) is list:
+            print("Probabilities knowing " + str(toDisplay.index(internal)))
+        if type(internal) is not str and type(internal) is not GaussianDistribution:
+            displayTrainingResults(internal)
+
+
+
+
+
+
 class Nbc(Classifier):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -33,6 +65,10 @@ class Nbc(Classifier):
                 self.probability_of_each_feature[ids].append({})
                 for j in range(len(unique_features)):
                     self.probability_of_each_feature[ids][i][str(unique_features[j])] = count[j]/len(column)
+        print("Probability of each class")
+        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
+        print("Probability of each feature")
+        displayTrainingResults(self.probability_of_each_feature)
 
     def predict(self, exemple, label):
         probs = []
@@ -82,6 +118,10 @@ class NbcGaussian(Nbc):
                 var = np.var(column)
                 average = np.average(column)
                 self.probability_of_each_feature[ids].append(GaussianDistribution(average, var))
+        print("Probability of each class")
+        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
+        print("Probability of each feature")
+        DisplayTrainResultGaussian(self.probability_of_each_feature)
 
     def predict(self, exemple, label):
         probs = []
@@ -106,7 +146,7 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.9
+    train_ratio: float = 0.4
 
     print(f"Train ratio: {train_ratio}")
     print("\n")
@@ -117,6 +157,7 @@ if __name__ == '__main__':
 
     iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(train_ratio)
     iris_knn = NbcGaussian()
+
     iris_knn.train(iris_train, iris_train_labels)
     iris_knn.test(iris_test, iris_test_labels)
 

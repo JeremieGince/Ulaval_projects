@@ -51,3 +51,6 @@ class GaussianDistribution:
         second_term = exp(((-1.0)/(2*self.variance))*((value - self.average))**2)
         return alpha*second_term
 
+    def __str__(self):
+        return f"Gaussian distribution with average {self.average} and variance {self.variance}"
+
