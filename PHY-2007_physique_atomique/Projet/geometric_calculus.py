@@ -1,5 +1,6 @@
 import numpy as np
-import Projet.Constantes as const
+import Constantes as const
+
 
 class Geometric_calculus:
     """
@@ -52,7 +53,6 @@ class Geometric_calculus:
         self._C = C
         self._phi = self._get_phi(self._w_c)
         self._x_ref = self.get_x_for_frequency(self._w_c)
-        print(self._phi)
 
     def _get_phi(self, w_c) -> float:
         """This methods calculates the value of 
@@ -134,7 +134,7 @@ class Geometric_calculus:
         """
         n = self._get_refraction_value(w)
         arcsin_argument = np.sin(np.pi/6 + self._angle)/n
-        h_top = (self._L + (self._a/8)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
+        h_top = (self._L + (self._a/3)*np.cos(self._phi))*(np.sin(np.arcsin(arcsin_argument) - np.pi/6 + self._phi))
         return h_top
 
     def get_differences_of_h(self, w) -> float:
@@ -152,16 +152,16 @@ class Geometric_calculus:
                 the height differences in m
         """
         n = self._get_refraction_value(w)
-        H =(self._L + (self._a/8)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
-        d = (np.sqrt(3)*(self._a/8))/np.sin(np.arcsin((np.sin(np.pi/6 + self._angle))/n) + np.pi/6)
-        den = np.sin(np.pi/3 + np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n) + self._phi)))
+        H =(self._L + (self._a/3)*np.cos(self._phi))/np.cos(np.arcsin((np.sin(np.pi/6 + self._angle ))/n) - np.pi/6 + self._phi)
+        d = (np.sqrt(3)*(self._a/3))/np.sin((2*np.pi)/6- np.arcsin((np.sin(np.pi/6 + self._angle))/n))
+        den = np.sin(np.pi/2 + np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n) - np.pi/6 + self._phi) - np.abs(np.arcsin(np.sin(np.pi/6 + self._angle)/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin(np.sin(np.pi/6 + self._angle)/n)))))
         nim = np.sin(np.arcsin((np.sin(np.pi/6 + self._angle ))/n)- np.arcsin(n*np.sin(np.pi/3 - np.arcsin((np.sin(np.pi/6 + self._angle))/n))))
         diff_h = ((H - d)*nim)/den
         return diff_h
 
     def get_delta_x(self, w) -> float:
         """This methods calculates the value of
-            the distance between the beam and the bean of frequency of w_c
+            the distance between the beam and the beam of frequency of w_c
             on the screen
 
             Parameters
@@ -177,9 +177,13 @@ class Geometric_calculus:
         delta_x = self.get_x_for_frequency(w) - self._x_ref
         return delta_x
 
+
 if __name__ == "__main__":
-    G = Geometric_calculus(3873675771820550.5, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
-    print(G.get_delta_x(2.69e15))
+    G = Geometric_calculus(3.5e15, np.pi/4, 2e-2, 50e-2, 1.4580, 0.00354e-12)
+    print(G.get_delta_x(2.0e15))
+    print(G.get_delta_x(2.5e15))
     print(G.get_delta_x(3e15))
+    print(G.get_delta_x(3.5e15))
     print(G.get_delta_x(4e15))
-    print(G.get_delta_x(4.71e15))
+    print(G.get_delta_x(4.51e15))
+    print(G.get_delta_x(5e15))
