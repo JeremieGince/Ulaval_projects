@@ -9,7 +9,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
-    line, = ax.plot(D, A, '.', color='blue', lw=2, label="Données expérimentales")
+    line, = ax.plot(D, A, '.', color='blue', lw=2, label=rf"Données expérimentales")
     fitValues = np.polyfit(D[:7], A[:7], 1)
     fit, = ax.plot(D[:7], np.poly1d(fitValues)(D[:7]), color='red', lw=2,
                    label=f"Fit linéaire: {fitValues[0]:.2f}d + {fitValues[-1]:.2f}")
