@@ -70,12 +70,12 @@ class Nbc(Classifier):
         print("Probability of each feature")
         displayTrainingResults(self.probability_of_each_feature)
 
-    def predict(self, exemple, label):
+    def predict(self, example, label):
         probs = []
         for i in range(self.number_of_classes):
             probs.append([])
         i = 0
-        for feature in exemple:
+        for feature in example:
             for j in range(self.number_of_classes):
                 try:
                     probs[j].append(self.probability_of_each_feature[j][i][str(feature)])
@@ -89,8 +89,8 @@ class Nbc(Classifier):
         res = probabilite_final.index(max(probabilite_final))
         return res, res == label
 
-    def test(self, test, test_labels):
-        return Classifier.test(self, test, test_labels)
+    def test(self, test_set, test_labels):
+        return Classifier.test(self, test_set, test_labels)
 
 class NbcGaussian(Nbc):
     def __init__(self, **kwargs):
@@ -123,12 +123,12 @@ class NbcGaussian(Nbc):
         print("Probability of each feature")
         DisplayTrainResultGaussian(self.probability_of_each_feature)
 
-    def predict(self, exemple, label):
+    def predict(self, example, label):
         probs = []
         for i in range(self.number_of_classes):
             probs.append([])
         i = 0
-        for feature in exemple:
+        for feature in example:
             for j in range(self.number_of_classes):
                 probs[j].append(self.probability_of_each_feature[j][i].evaluate(feature))
             i +=1
@@ -139,8 +139,8 @@ class NbcGaussian(Nbc):
         prediction = probabilite_final.index(max(probabilite_final))
         return prediction, prediction == label
 
-    def test(self, test, test_labels):
-        return Classifier.test(self, test, test_labels)
+    def test(self, test_set, test_labels):
+        return Classifier.test(self, test_set, test_labels)
 
 if __name__ == '__main__':
     import load_datasets
