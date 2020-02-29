@@ -41,6 +41,7 @@ class MapHashVecLabel:
         strvec = strvec.replace('[', '').replace(']', '')
         return np.fromstring(strvec, sep=' ')
 
+
 class GaussianDistribution:
     def __init__(self, average, variance):
         self.variance = variance
@@ -52,5 +53,5 @@ class GaussianDistribution:
         return alpha*second_term
 
     def __str__(self):
-        return f"Gaussian distribution with average {self.average} and variance {self.variance}"
+        return f"Gaussian distribution with average {self.average:.3f} and variance {self.variance:.3f}"
 
