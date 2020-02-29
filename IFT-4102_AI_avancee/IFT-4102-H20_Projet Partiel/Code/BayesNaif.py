@@ -16,7 +16,10 @@ def DisplayTrainResultGaussian(l):
         print("Probabilities knowing " + str(count))
         subcount = 0
         for subitem in item:
-            print(f"P({subcount}) = {subitem:.3f}")
+            print(f"P({subcount})",
+                  "= {}".format(f"{subitem:.3f}"
+                                if isinstance(subitem, (float, int))
+                                else str(subitem)))
             subcount += 1
         count += 1
 
@@ -25,6 +28,8 @@ def displayTrainingResults(toDisplay):
     for internal in toDisplay:
         if type(internal) is dict:
             print("Probabilities for feature number " + str(toDisplay.index(internal)))
+            # for k, v in internal.items():
+            #     print(f"P({k}) = {v:.3f}")
             print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %s\n"))
         if type(internal) is list:
             print("Probabilities knowing " + str(toDisplay.index(internal)))
@@ -57,14 +62,14 @@ class Nbc(Classifier):
         self.probability_of_each_class: dict = dict()
         self.probability_of_each_feature: list = list()
 
-    def train(self, train, train_labels):
+    def train(self, train_set, train_labels):
         """
         This method will set the parameters of the Nbc
-        :param train: The vectorized training
+        :param train_set: The vectorized training
         :param train_labels:
         :return: None
         """
-        assert len(train) == len(train_labels)
+        assert len(train_set) == len(train_labels)
         uniques, counts = np.unique(train_labels, return_counts=True)
 
         self.number_of_classes = len(uniques)
@@ -79,7 +84,7 @@ class Nbc(Classifier):
             label_pairing.insert(ids, [i for i in range(len(train_labels)) if train_labels[i] == ids])
 
         for ids in uniques:
-            data = train[label_pairing[ids], :]
+            data = train_set[label_pairing[ids], :]
             for i in range(data.shape[1]):
                 column = data[:, i]
                 unique_features, count = np.unique(column, return_counts=True)
@@ -122,8 +127,8 @@ class NbcGaussian(Nbc):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def train(self, train, train_labels):
-        assert len(train) == len(train_labels)
+    def train(self, train_set, train_labels):
+        assert len(train_set) == len(train_labels)
         uniques, counts = np.unique(train_labels, return_counts=True)
 
         self.number_of_classes = len(uniques)
@@ -138,7 +143,7 @@ class NbcGaussian(Nbc):
             label_pairing.insert(ids, [i for i in range(len(train_labels)) if train_labels[i] == ids])
 
         for ids in uniques:
-            data = train[label_pairing[ids], :]
+            data = train_set[label_pairing[ids], :]
             for i in range(data.shape[1]):
                 column = data[:, i]
                 var = np.var(column)
