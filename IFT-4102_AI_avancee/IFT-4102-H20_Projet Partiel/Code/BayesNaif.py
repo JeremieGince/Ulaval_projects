@@ -59,8 +59,8 @@ class Nbc(Classifier):
     def train(self, train, train_labels):
         """
         This method will set the parameters of the Nbc
-        :param train: The vectorized training
-        :param train_labels:
+        :param train: The vectorized training sample. The ith element is the ith vector
+        :param train_labels: the labels of the training set. The ith label is the label of the ith vector.
         :return: None
         """
         assert len(train) == len(train_labels)
@@ -91,6 +91,13 @@ class Nbc(Classifier):
         displayTrainingResults(self.probability_of_each_feature)
 
     def predict(self, example, label):
+        """
+        This method will classify the example, and then return true if the predicted label == label,
+        else it returns false
+        :param example: The vectorized sample
+        :param label: the actual label of the vector
+        :return: a tuple. (classified label, result)
+        """
         probs = []
         for i in range(self.number_of_classes):
             probs.append([])
@@ -122,6 +129,12 @@ class NbcGaussian(Nbc):
         super().__init__(**kwargs)
 
     def train(self, train, train_labels):
+        """
+        This method will set the parameters of the Nbc
+        :param train: The vectorized training sample. The ith element is the ith vector
+        :param train_labels: the labels of the training set. The ith label is the label of the ith vector.
+        :return: None
+        """
         assert len(train) == len(train_labels)
         uniques, counts = np.unique(train_labels, return_counts=True)
 
@@ -143,9 +156,6 @@ class NbcGaussian(Nbc):
                 var = np.var(column)
                 average = np.average(column)
                 self.probability_of_each_feature[ids].append(GaussianDistribution(average, var))
-        print("Probability of each class")
-        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
-        print("Probability of each feature")
         DisplayTrainResultGaussian(self.probability_of_each_feature)
 
     def predict(self, example, label):
