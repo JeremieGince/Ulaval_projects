@@ -36,13 +36,33 @@ def displayTrainingResults(toDisplay):
 
 
 class Nbc(Classifier):
+    """
+    Naive Bayes classifier implementation
+
+    reference: https://fr.wikipedia.org/wiki/Classification_naïve_bayésienne
+    """
     def __init__(self, **kwargs):
+        """
+        Constructor of Nbc.
+
+        Attributes
+        ----------
+        :attr probability_of_each_class: Maps each class with its frequency of apparition in the training data {class -> frequency} (dict)
+        :attr probability_of_each_feature: For each class, it maps the frequency of apparition of the feature in the given class
+        (class -> feature -> frequency)(list)
+        """
         super().__init__(**kwargs)
         self.number_of_classes: int = 0
         self.probability_of_each_class: dict = dict()
         self.probability_of_each_feature: list = list()
 
     def train(self, train, train_labels):
+        """
+        This method will set the parameters of the Nbc
+        :param train: The vectorized training
+        :param train_labels:
+        :return: None
+        """
         assert len(train) == len(train_labels)
         uniques, counts = np.unique(train_labels, return_counts=True)
 
@@ -93,6 +113,11 @@ class Nbc(Classifier):
         return Classifier.test(self, test, test_labels)
 
 class NbcGaussian(Nbc):
+    """
+    Naive Bayes classifier implementation with gaussian probability distribution of features.
+
+    reference: https://fr.wikipedia.org/wiki/Classification_naïve_bayésienne
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -131,7 +156,7 @@ class NbcGaussian(Nbc):
         for feature in exemple:
             for j in range(self.number_of_classes):
                 probs[j].append(self.probability_of_each_feature[j][i].evaluate(feature))
-            i +=1
+            i += 1
 
         probabilite_final = []
         for i in range(self.number_of_classes):
