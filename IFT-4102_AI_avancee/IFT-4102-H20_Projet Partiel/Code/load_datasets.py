@@ -128,9 +128,9 @@ def load_monks_dataset(numero_dataset):
     """
     assert numero_dataset in {1, 2, 3}, "param: numero_dataset must be in {1, 2, 3}"
 
-    train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train_set',
+    train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train',
                                                              class_index=0, index_to_remove=-1, delimiter=' ')
-    test_raw_data, test_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.test_set',
+    test_raw_data, test_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.test',
                                                            class_index=0, index_to_remove=-1, delimiter=' ')
 
     train: np.ndarray = np.array(train_raw_data)
