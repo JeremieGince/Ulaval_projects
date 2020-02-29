@@ -14,12 +14,12 @@ class Classifier:
 		"""
         pass
 
-    def train(self, train: np.ndarray, train_labels: np.ndarray,
-			  verbose: bool = True, **kwargs):
+    def train(self, train_set: np.ndarray, train_labels: np.ndarray,
+              verbose: bool = True, **kwargs):
         """
 		Used to train_set the current model.
 
-		:param train: une matrice de type Numpy et de taille nxm, avec
+		:param train_set: une matrice de type Numpy et de taille nxm, avec
 		n : le nombre d'example d'entrainement dans le dataset
 		m : le mobre d'attribus (le nombre de caractéristiques)
 
