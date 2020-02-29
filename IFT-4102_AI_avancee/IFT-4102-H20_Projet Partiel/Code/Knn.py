@@ -23,10 +23,10 @@ class Knn(Classifier):
 
         Attributes
         ----------
-        :attr train_vector_to_label: Map vectors train data to it's label {data -> label} (MapHashVecLabel)
-        :attr test_vector_to_label: Map vectors test data to it's label {data -> label} (MapHashVecLabel)
-        :attr _Kmin: Value of the minimum K used in train method to fit the best K value. (int)
-        :attr _Kmax: Value of the maximum K used in train method to fit the best K value. (int)
+        :attr train_vector_to_label: Map vectors train_set data to it's label {data -> label} (MapHashVecLabel)
+        :attr test_vector_to_label: Map vectors test_set data to it's label {data -> label} (MapHashVecLabel)
+        :attr _Kmin: Value of the minimum K used in train_set method to fit the best K value. (int)
+        :attr _Kmax: Value of the maximum K used in train_set method to fit the best K value. (int)
         :attr K: Value of the parameter K representing the number of nearest neighbors used to classify data. (int)
 
         """
@@ -114,17 +114,30 @@ class Knn(Classifier):
 
         return self.test(train, train_labels, verbose, displayArgs)
 
-    def predict(self, exemple, label):
+    def predict(self, example, label) -> (int, bool):
+        """
+        Perform the classification of the current current example.
+        :param example: data sample (np.ndarray)
+        :param label: the class of this example. (int)
+        :return: predicted class of the sample, predicted class == label
+        """
         # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
-        return self.naivePrediction(exemple, label)
+        return self.naivePrediction(example, label)
 
-    def naivePrediction(self, exemple, label, distanceFunc=util.euclidean_distance):
+    def naivePrediction(self, example, label, distanceFunc=util.euclidean_distance):
+        """
+        Perform the naive classification of the current current example.
+        :param example: data sample (np.ndarray)
+        :param label: the class of this example. (int)
+        :param distanceFunc: Distance function used to classify data. (function)
+        :return: predicted class of the sample, predicted class == label
+        """
         train_data: util.MapHashVecLabel = self.train_vector_to_label.deepcopy()
         neighbors: list = list()
 
         while train_data:
             train_vector, cls = train_data.popitem()
-            distance: float = distanceFunc(exemple, train_vector)
+            distance: float = distanceFunc(example, train_vector)
             neighbor: tuple = (train_vector, distance, cls)
             neighbors.append(neighbor)
 
@@ -134,21 +147,30 @@ class Knn(Classifier):
         prediction_cls: int = max(nearest_classes_count, key=nearest_classes_count.get)
         return prediction_cls, prediction_cls == label
 
-    def test(self, test, test_labels, verbose: bool = True, displayArgs: dict = None) -> tuple:
-        self.setTestData(test, test_labels)
-        return Classifier.test(self, test, test_labels, verbose, displayArgs)
+    def test(self, test_set, test_labels, verbose: bool = True, displayArgs: dict = None) \
+            -> (np.ndarray, float, float, float):
+        self.setTestData(test_set, test_labels)
+        return Classifier.test(self, test_set, test_labels, verbose, displayArgs)
 
-    def getAccuracy(self, test=None, test_labels=None):
-        if test is None or test_labels is None:
-            test, test_labels = self.test_vector_to_label.asLists()
-        return Classifier.getAccuracy(self, test, test_labels)
+    def getAccuracy(self, test_set=None, test_labels=None):
+        if test_set is None or test_labels is None:
+            test_set, test_labels = self.test_vector_to_label.asLists()
+        return Classifier.getAccuracy(self, test_set, test_labels)
 
-    def crossValidation(self, train, train_labels, cv: int = 5, k: int = defaultK):
-        di: int = int(len(train)/cv)
+    def crossValidation(self, train_set, train_labels, cv: int = 5, k: int = defaultK) -> float:
+        """
+        Perform the cross validation for the given train_set data
+        :param train_set: Training data (np.ndarray)
+        :param train_labels: Training labels (np.ndarray)
+        :param cv: Cross validation factor (int)
+        :param k: The number of nearest neighbors used to classify data. (int)
+        :return: cross validation :rtype float
+        """
+        di: int = int(len(train_set) / cv)
 
         accuracy_list: list = list()
         for i in range(cv):
-            train_i = list(train)
+            train_i = list(train_set)
             train_labels_i = list(train_labels)
             if i < cv - 1:
                 crossSet = list(train_i[i * di:(i + 1) * di])
@@ -165,8 +187,8 @@ class Knn(Classifier):
 
             knn = Knn()
             knn.K = k
-            knn.setTrainData(train_i, train_labels_i)
-            acc = knn.getAccuracy(crossSet, crossSet_labels)
+            knn.setTrainData(np.array(train_i), np.array(train_labels_i))
+            acc = knn.getAccuracy(np.array(crossSet), np.array(crossSet_labels))
             accuracy_list.append(acc)
 
         return np.array(accuracy_list).mean()

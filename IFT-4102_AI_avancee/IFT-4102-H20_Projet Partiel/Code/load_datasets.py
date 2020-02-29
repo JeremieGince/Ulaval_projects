@@ -9,23 +9,23 @@ def load_iris_dataset(train_ratio: float) -> tuple:
     Args:
         train_ratio: le ratio des exemples (ou instances) qui vont etre attribués à l'entrainement,
         le rest des exemples va etre utilisé pour les tests.
-        Par exemple : si le ratio est 50%, il y aura 50% des exemple (75 exemples) qui vont etre utilisé
-        pour l'entrainement, et 50% (75 exemples) pour le test.
+        Par example : si le ratio est 50%, il y aura 50% des example (75 exemples) qui vont etre utilisé
+        pour l'entrainement, et 50% (75 exemples) pour le test_set.
 
     Retours:
-        Cette fonction doit retourner 4 matrices de type Numpy, train, train_labels, test, et test_labels
+        Cette fonction doit retourner 4 matrices de type Numpy, train_set, train_labels, test_set, et test_labels
 
-        - train : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque
-        ligne dans cette matrice représente un exemple (ou instance) d'entrainement.
+        - train_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque
+        ligne dans cette matrice représente un example (ou instance) d'entrainement.
 
-        - train_labels : contient les labels (ou les étiquettes) pour chaque exemple dans train, de telle sorte
-          que : train_labels[i] est le label (ou l'etiquette) pour l'exemple train[i]
+        - train_labels : contient les labels (ou les étiquettes) pour chaque example dans train_set, de telle sorte
+          que : train_labels[i] est le label (ou l'etiquette) pour l'example train_set[i]
 
-        - test : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test, chaque
-        ligne dans cette matrice représente un exemple (ou instance) de test.
+        - test_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test_set, chaque
+        ligne dans cette matrice représente un example (ou instance) de test_set.
 
-        - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
-          que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
+        - test_labels : contient les labels (ou les étiquettes) pour chaque example dans test_set, de telle sorte
+          que : test_labels[i] est le label (ou l'etiquette) pour l'example test_set[i]
     """
 
     random.seed(1)  # Pour avoir les meme nombres aléatoires à chaque initialisation.
@@ -52,19 +52,19 @@ def load_congressional_dataset(train_ratio: float) -> tuple:
 
     Args:
         train_ratio: le ratio des exemples (ou instances) qui vont servir pour l'entrainement,
-        le rest des exemples va etre utilisé pour les test.
+        le rest des exemples va etre utilisé pour les test_set.
 
     Retours:
-        Cette fonction doit retourner 4 matrices de type Numpy, train, train_labels, test, et test_labels
+        Cette fonction doit retourner 4 matrices de type Numpy, train_set, train_labels, test_set, et test_labels
         
-        - train : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque 
-        ligne dans cette matrice représente un exemple (ou instance) d'entrainement.
-        - train_labels : contient les labels (ou les étiquettes) pour chaque exemple dans train, de telle sorte
-          que : train_labels[i] est le label (ou l'etiquette) pour l'exemple train[i]
-        - test : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test, chaque 
-        ligne dans cette matrice représente un exemple (ou instance) de test.
-        - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
-          que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
+        - train_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque
+        ligne dans cette matrice représente un example (ou instance) d'entrainement.
+        - train_labels : contient les labels (ou les étiquettes) pour chaque example dans train_set, de telle sorte
+          que : train_labels[i] est le label (ou l'etiquette) pour l'example train_set[i]
+        - test_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test_set, chaque
+        ligne dans cette matrice représente un example (ou instance) de test_set.
+        - test_labels : contient les labels (ou les étiquettes) pour chaque example dans test_set, de telle sorte
+          que : test_labels[i] est le label (ou l'etiquette) pour l'example test_set[i]
     """
 
     random.seed(1)  # Pour avoir les meme nombres aléatoires à chaque initialisation.
@@ -109,28 +109,28 @@ def load_monks_dataset(numero_dataset):
 
     Args:
         numero_dataset: lequel des sous problèmes nous voulons charger (1, 2 ou 3 ?)
-		par exemple, si numero_dataset=2, vous devez lire :
-		le fichier monks-2.train contenant les exemples pour l'entrainement
-		et le fichier monks-2.test contenant les exemples pour le test
+		par example, si numero_dataset=2, vous devez lire :
+		le fichier monks-2.train_set contenant les exemples pour l'entrainement
+		et le fichier monks-2.test_set contenant les exemples pour le test_set
         les fichiers sont tous dans le dossier datasets
     Retours:
-        Cette fonction doit retourner 4 matrices de type Numpy, train, train_labels, test, et test_labels
+        Cette fonction doit retourner 4 matrices de type Numpy, train_set, train_labels, test_set, et test_labels
         
-        - train : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque 
-        ligne dans cette matrice représente un exemple (ou instance) d'entrainement.
-        - train_labels : contient les labels (ou les étiquettes) pour chaque exemple dans train, de telle sorte
-          que : train_labels[i] est le label (ou l'etiquette) pour l'exemple train[i]
+        - train_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour l'entrainement, chaque
+        ligne dans cette matrice représente un example (ou instance) d'entrainement.
+        - train_labels : contient les labels (ou les étiquettes) pour chaque example dans train_set, de telle sorte
+          que : train_labels[i] est le label (ou l'etiquette) pour l'example train_set[i]
         
-        - test : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test, chaque 
-        ligne dans cette matrice représente un exemple (ou instance) de test.
-        - test_labels : contient les labels (ou les étiquettes) pour chaque exemple dans test, de telle sorte
-          que : test_labels[i] est le label (ou l'etiquette) pour l'exemple test[i]
+        - test_set : une matrice numpy qui contient les exemples qui vont etre utilisés pour le test_set, chaque
+        ligne dans cette matrice représente un example (ou instance) de test_set.
+        - test_labels : contient les labels (ou les étiquettes) pour chaque example dans test_set, de telle sorte
+          que : test_labels[i] est le label (ou l'etiquette) pour l'example test_set[i]
     """
     assert numero_dataset in {1, 2, 3}, "param: numero_dataset must be in {1, 2, 3}"
 
-    train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train',
+    train_raw_data, train_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.train_set',
                                                              class_index=0, index_to_remove=-1, delimiter=' ')
-    test_raw_data, test_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.test',
+    test_raw_data, test_raw_data_labels = extract_raw_data(f'datasets/monks-{numero_dataset}.test_set',
                                                            class_index=0, index_to_remove=-1, delimiter=' ')
 
     train: np.ndarray = np.array(train_raw_data)
