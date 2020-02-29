@@ -3,12 +3,12 @@ import numpy as np
 from util import GaussianDistribution
 
 
-
-def ReturnDictionnaryAsProbabilities(d, insertIn, index = -1):
+def ReturnDictionnaryAsProbabilities(d, insertIn, index=-1):
     string = ""
     for k, v in d.items():
             string += insertIn % (k, v)
     return string
+
 
 def DisplayTrainResultGaussian(l):
     count = 0
@@ -16,9 +16,10 @@ def DisplayTrainResultGaussian(l):
         print("Probabilities knowing " + str(count))
         subcount = 0
         for subitem in item:
-            print(f"P({subcount}) = {subitem}")
+            print(f"P({subcount}) = {subitem:.3f}")
             subcount += 1
-        count +=1
+        count += 1
+
 
 def displayTrainingResults(toDisplay):
     for internal in toDisplay:
