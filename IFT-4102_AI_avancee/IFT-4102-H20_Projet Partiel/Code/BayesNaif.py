@@ -170,6 +170,13 @@ class NbcGaussian(Nbc):
         DisplayTrainResultGaussian(self.probability_of_each_feature)
 
     def predict(self, example, label):
+        """
+                This method will classify the example, and then return true if the predicted label == label,
+                else it returns false
+                :param example: The vectorized sample
+                :param label: the actual label of the vector
+                :return: a tuple. (classified label, result)
+                """
         probs = []
         for i in range(self.number_of_classes):
             probs.append([])
