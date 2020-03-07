@@ -2,11 +2,11 @@ from classifieur import *
 import numpy as np
 from util import GaussianDistribution
 
-
-def ReturnDictionnaryAsProbabilities(d, insertIn, index=-1):
+#helper functions for display
+def ReturnDictionnaryAsProbabilities(d, insertIn):
     string = ""
     for k, v in d.items():
-            string += insertIn % (k, v)
+        string += insertIn % (k, v)
     return string
 
 
@@ -29,16 +29,12 @@ def displayTrainingResults(toDisplay):
         if type(internal) is dict:
             print("Probabilities for feature number " + str(toDisplay.index(internal)))
             for k, v in internal.items():
-                 print(f"P({k}) = {v:.3f}")
-            #print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %.3f\n"))
+                print(f"P({k}) = {v:.3f}")
+            # print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %.3f\n"))
         if type(internal) is list:
             print("Probabilities knowing " + str(toDisplay.index(internal)))
         if type(internal) is not str and type(internal) is not GaussianDistribution:
             displayTrainingResults(internal)
-
-
-
-
 
 
 class Nbc(Classifier):
@@ -47,6 +43,7 @@ class Nbc(Classifier):
 
     reference: https://fr.wikipedia.org/wiki/Classification_naïve_bayésienne
     """
+
     def __init__(self, **kwargs):
         """
         Constructor of Nbc.
@@ -74,7 +71,7 @@ class Nbc(Classifier):
         train_set = train_set.astype(int)
         self.number_of_classes = len(uniques)
         for ids in uniques:
-            self.probability_of_each_class[str(ids)] = counts[ids]/len(train_labels)
+            self.probability_of_each_class[str(ids)] = counts[ids] / len(train_labels)
 
         for i in range(len(uniques)):
             self.probability_of_each_feature.append([])
@@ -88,10 +85,11 @@ class Nbc(Classifier):
             for i in range(data.shape[1]):
                 column = data[:, i]
                 unique_features, count = np.unique(column, return_counts=True)
-                #unique_features = unique_features.astype(int)
+                # unique_features = unique_features.astype(int)
                 self.probability_of_each_feature[ids].append({})
                 for j in range(len(unique_features)):
-                    self.probability_of_each_feature[ids][i][str(unique_features.astype(int)[j])] = count[j]/len(column)
+                    self.probability_of_each_feature[ids][i][str(unique_features.astype(int)[j])] = count[j] / len(
+                        column)
         print("Probability of each class")
         print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %.3f\n"))
         print("Probability of each feature")
@@ -116,16 +114,17 @@ class Nbc(Classifier):
                     probs[j].append(self.probability_of_each_feature[j][i][str(feature)])
                 except:
                     probs[j].append(0)
-            i +=1
+            i += 1
 
         probabilite_final = []
         for i in range(self.number_of_classes):
-            probabilite_final.append(self.probability_of_each_class[str(i)]*np.prod(probs[i]))
+            probabilite_final.append(self.probability_of_each_class[str(i)] * np.prod(probs[i]))
         res = probabilite_final.index(max(probabilite_final))
         return res, res == label
 
     def test(self, test_set, test_labels):
         return Classifier.test(self, test_set, test_labels)
+
 
 class NbcGaussian(Nbc):
     """
@@ -133,6 +132,7 @@ class NbcGaussian(Nbc):
 
     reference: https://fr.wikipedia.org/wiki/Classification_naïve_bayésienne
     """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -147,7 +147,7 @@ class NbcGaussian(Nbc):
 
         self.number_of_classes = len(uniques)
         for ids in uniques:
-            self.probability_of_each_class[str(ids)] = counts[ids]/len(train_labels)
+            self.probability_of_each_class[str(ids)] = counts[ids] / len(train_labels)
 
         for i in range(len(uniques)):
             self.probability_of_each_feature.append([])
@@ -163,6 +163,10 @@ class NbcGaussian(Nbc):
                 var = np.var(column)
                 average = np.average(column)
                 self.probability_of_each_feature[ids].append(GaussianDistribution(average, var))
+
+        print("Probability of each class")
+        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
+        print("Probability of each feature")
         DisplayTrainResultGaussian(self.probability_of_each_feature)
 
     def predict(self, example, label):
@@ -177,18 +181,19 @@ class NbcGaussian(Nbc):
 
         probabilite_final = []
         for i in range(self.number_of_classes):
-            probabilite_final.append(self.probability_of_each_class[str(i)]*np.prod(probs[i]))
+            probabilite_final.append(self.probability_of_each_class[str(i)] * np.prod(probs[i]))
         prediction = probabilite_final.index(max(probabilite_final))
         return prediction, prediction == label
 
     def test(self, test_set, test_labels):
         return Classifier.test(self, test_set, test_labels)
 
+
 if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.4
+    train_ratio: float = 0.05
 
     print(f"Train ratio: {train_ratio}")
     print("\n")
@@ -205,7 +210,7 @@ if __name__ == '__main__':
 
     print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
 
-    print('-'*175)
+    print('-' * 175)
     print(f"Congressional dataset classification: \n")
     startTime = time.time()
 
@@ -218,10 +223,10 @@ if __name__ == '__main__':
 
     print('-' * 175)
     for i in range(3):
-        print(f"Monks({i+1}) dataset classification: \n")
+        print(f"Monks({i + 1}) dataset classification: \n")
         startTime = time.time()
 
-        monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i+1)
+        monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i + 1)
         monks_knn = Nbc()
         monks_knn.train(monks_train, monks_train_labels)
         monks_knn.test(monks_test, monks_test_labels)
