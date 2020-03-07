@@ -28,9 +28,9 @@ def displayTrainingResults(toDisplay):
     for internal in toDisplay:
         if type(internal) is dict:
             print("Probabilities for feature number " + str(toDisplay.index(internal)))
-            # for k, v in internal.items():
-            #     print(f"P({k}) = {v:.3f}")
-            print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %s\n"))
+            for k, v in internal.items():
+                 print(f"P({k}) = {v:.3f}")
+            #print(ReturnDictionnaryAsProbabilities(internal, "P(%s) = %.3f\n"))
         if type(internal) is list:
             print("Probabilities knowing " + str(toDisplay.index(internal)))
         if type(internal) is not str and type(internal) is not GaussianDistribution:
@@ -71,7 +71,7 @@ class Nbc(Classifier):
         """
         assert len(train_set) == len(train_labels)
         uniques, counts = np.unique(train_labels, return_counts=True)
-
+        train_set = train_set.astype(int)
         self.number_of_classes = len(uniques)
         for ids in uniques:
             self.probability_of_each_class[str(ids)] = counts[ids]/len(train_labels)
@@ -88,11 +88,12 @@ class Nbc(Classifier):
             for i in range(data.shape[1]):
                 column = data[:, i]
                 unique_features, count = np.unique(column, return_counts=True)
+                #unique_features = unique_features.astype(int)
                 self.probability_of_each_feature[ids].append({})
                 for j in range(len(unique_features)):
-                    self.probability_of_each_feature[ids][i][str(unique_features[j])] = count[j]/len(column)
+                    self.probability_of_each_feature[ids][i][str(unique_features.astype(int)[j])] = count[j]/len(column)
         print("Probability of each class")
-        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
+        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %.3f\n"))
         print("Probability of each feature")
         displayTrainingResults(self.probability_of_each_feature)
 
@@ -105,6 +106,7 @@ class Nbc(Classifier):
         :return: a tuple. (classified label, result)
         """
         probs = []
+        example = example.astype(int)
         for i in range(self.number_of_classes):
             probs.append([])
         i = 0
