@@ -1,3 +1,5 @@
+À ouvrir avec Notepad afin que le rendu de ce fichier soit conforme avec les exigence.
+
 Description des classes
 
 Fichier	     		Classe				Description
@@ -31,3 +33,8 @@ Difficultées rencontrées
 les résultats de l'entrainement. Nous avons opté pour des structures de bases en python (des listes et des dictionnaires).
 Il y a cependant place à l'amélioration. Celles-ci pourraient être caché sous des classes qui exposeraient des fonctionnalitées.
 Le code serait ainsi plus simple et la facilité de lecture du code serait amélioré. 
+
+- Pour ce qui est du Knn, nous avons eu beaucoup de difficulté à trouver un moyen afin de préentraîner le modèle dans l'optique 
+d'optimiser la prédiction du Knn. Malheureusement, après beaucoup de recherche sur internet, aucune méthode satifesant nos exigences
+a été trouvé dans un délais raisonnable. Une telle méthode nous aurait permit d'effectuer un préentraînement sur les données et ainsi
+accélérer la prédiction de notre Knn qui est plutôt lent à ce niveau. 
