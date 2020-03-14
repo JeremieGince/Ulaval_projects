@@ -19,6 +19,7 @@ class Knn(Classifier):
             Kmin: initialisation of the attribute _Kmin, must be higher than 0. (int),
             Kmax: initialisation of the attribute _Kmax, must be higher than 0. (int),
             K: initialisation of the attribute K, must be higher than 0. (int)
+            distance_func: Distance function for the naive prediction. (func)
         }
 
         Attributes
@@ -28,14 +29,16 @@ class Knn(Classifier):
         :attr _Kmin: Value of the minimum K used in train_set method to fit the best K value. (int)
         :attr _Kmax: Value of the maximum K used in train_set method to fit the best K value. (int)
         :attr K: Value of the parameter K representing the number of nearest neighbors used to classify data. (int)
+        :attr distance_func: Distance function for the naive prediction. (func)
 
         """
         super().__init__(**kwargs)
         self.train_vector_to_label: util.MapHashVecLabel = util.MapHashVecLabel()
         self.test_vector_to_label: util.MapHashVecLabel = util.MapHashVecLabel()
-        self._Kmin: int = kwargs["Kmin"] if "Kmin" in kwargs else 1
-        self.K: int = kwargs["K"] if "K" in kwargs else Knn.defaultK
-        self._Kmax: int = kwargs["Kmax"] if "Kmax" in kwargs else 25
+        self._Kmin: int = kwargs.get("Kmin", 1)
+        self.K: int = kwargs.get("K", Knn.defaultK)
+        self._Kmax: int = kwargs.get("Kmax", 25)
+        self.distance_func = kwargs.get("distance_func", util.euclidean_distance)
 
     def setData(self, train: np.ndarray, train_labels: np.ndarray, test: np.ndarray, test_labels: np.ndarray):
         """
@@ -103,6 +106,18 @@ class Knn(Classifier):
 
     def train(self, train_set: np.ndarray, train_labels: np.ndarray,
               verbose: bool = True, findBestKWithCrossValidation: bool = False) -> tuple:
+        """
+        TODO: La prédiction pourrait grandement être augmenté si nous utilisons une métric de distance
+              pondéré comme la "util.weighted_euclidean_distance" et que nous utilisons la méthode train
+              afin de trouver les poids idéaux selon l'article suivant:
+              https://sci2s.ugr.es/keel/pdf/algorithm/articulo/2006-Paredes-IEEETPAMI.pdf
+              
+        :param train_set:
+        :param train_labels:
+        :param verbose:
+        :param findBestKWithCrossValidation:
+        :return:
+        """
         self.setTrainData(train_set, train_labels)
 
         if findBestKWithCrossValidation:
@@ -117,6 +132,7 @@ class Knn(Classifier):
     def predict(self, example, label) -> (int, bool):
         """
         Perform the classification of the current current example.
+
         :param example: data sample (np.ndarray)
         :param label: the class of this example. (int)
         :return: predicted class of the sample, predicted class == label
@@ -124,12 +140,11 @@ class Knn(Classifier):
         # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
         return self.naivePrediction(example, label)
 
-    def naivePrediction(self, example, label, distanceFunc=util.euclidean_distance):
+    def naivePrediction(self, example, label):
         """
         Perform the naive classification of the current current example.
         :param example: data sample (np.ndarray)
         :param label: the class of this example. (int)
-        :param distanceFunc: Distance function used to classify data. (function)
         :return: predicted class of the sample, predicted class == label
         """
         train_data: util.MapHashVecLabel = self.train_vector_to_label.deepcopy()
@@ -137,7 +152,7 @@ class Knn(Classifier):
 
         while train_data:
             train_vector, cls = train_data.popitem()
-            distance: float = distanceFunc(example, train_vector)
+            distance: float = self.distance_func(example, train_vector)
             neighbor: tuple = (train_vector, distance, cls)
             neighbors.append(neighbor)
 
@@ -198,8 +213,9 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.10
+    train_ratio: float = 0.90
     findBestKWithCrossValidation: bool = True
+    distanceFunc = util.chebyshev_distance
 
     print(f"Train ratio: {train_ratio}")
     print(f"findBestKWithCrossValidation: {findBestKWithCrossValidation}")
@@ -210,22 +226,22 @@ if __name__ == '__main__':
     startTime = time.time()
 
     iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(train_ratio)
-    iris_knn = Knn()
+    iris_knn = Knn(distance_func=distanceFunc)
     iris_knn.train(iris_train, iris_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     iris_knn.test(iris_test, iris_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     print('-'*175)
     print(f"Congressional dataset classification: \n")
     startTime = time.time()
 
     cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(train_ratio)
-    cong_knn = Knn()
+    cong_knn = Knn(distance_func=distanceFunc)
     cong_knn.train(cong_train, cong_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     cong_knn.test(cong_test, cong_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     print('-' * 175)
     for i in range(3):
@@ -233,11 +249,11 @@ if __name__ == '__main__':
         startTime = time.time()
 
         monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i+1)
-        monks_knn = Knn()
+        monks_knn = Knn(distance_func=distanceFunc)
         monks_knn.train(monks_train, monks_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
         monks_knn.test(monks_test, monks_test_labels)
 
-        print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+        print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
         print('-' * 175)
 
