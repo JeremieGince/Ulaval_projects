@@ -109,11 +109,17 @@ class Classifier:
 
     def getPrecision(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
         """
+        Retoure la précision associée à chaque classe.
+
+                         (nombre de prediction correctement attribué à la classe i)
+        precision_i = -------------------------------------------------------------------
+                              (ombre d'étiquettes attribué à la classe i)
 
         Référence: https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+
         :param test_set: L'ensemble de données test (np.ndarray)
         :param test_labels: L'ensemble des étiquettes des données test (np.ndarray)
-        :return:
+        :return: Vecteur de précision :rtype: np.ndarray
         """
         confusionMatrix: np.ndarray = self.getConfusionMatrix(test_set, test_labels)
         precisionVector: np.ndarray = np.array([vector[idx] / np.sum(vector)
@@ -121,7 +127,19 @@ class Classifier:
         return precisionVector
 
     def getRecall(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
-        # https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+        """
+        Retoure le rappel associé à chaque classe.
+
+                         (nombre de prediction correctement attribué à la classe i)
+        rappel_i = -------------------------------------------------------------------
+                              (nombre de prediction attribué à la classe i)
+
+        Référence: https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+
+        :param test_set: L'ensemble de données test (np.ndarray)
+        :param test_labels: L'ensemble des étiquettes des données test (np.ndarray)
+        :return: Vecteur de précision :rtype: np.ndarray
+        """
         confusionMatrix_T: np.ndarray = self.getConfusionMatrix(test_set, test_labels).transpose()
         recallVector: np.ndarray = np.array([vector[idx] / np.sum(vector)
                                              for idx, vector in enumerate(confusionMatrix_T)])
@@ -129,11 +147,35 @@ class Classifier:
 
     def displayStats(self, confusionMatrix: np.ndarray = None, accuracy: float = None, precision: np.ndarray = None,
                      recall: np.ndarray = None, dataSize: int = None, title: str = "", preMessage: str = ""):
+        """
+        Affiche les différentes statistique relié à la classification d'un ensemble de données.
+        Affiche dans l'ordre:
+                                -> Un certain titre
+                                -> La taille de l'ensemble de données
+                                -> Un message quelconque
+                                -> La matrice de confusion
+                                -> L'accuracy
+                                -> La precision
+                                -> La precision moyenne
+                                -> Le rappel
+                                -> Le rappel moyen
+
+        :param confusionMatrix: La matrice de confusion (np.ndarray)
+        :param accuracy: L'accuracy (np.float)
+        :param precision: La precision pour chaque classe (np.ndarray)
+        :param recall: Le rappel pour chaque classe (np.ndarray)
+        :param dataSize: La taille de l'ensemble de données (int)
+        :param title: Un certain titre (str)
+        :param preMessage: Un certain message (str)
+        :return: None
+        """
         print((f"\n {title}:" if title else ""),
               f"Data set size: {dataSize}",
               (f"{preMessage}" if preMessage else ""),
               f"Confusion Matrix: \n {confusionMatrix}",
               f"Accuracy: {accuracy:.2f} %",
               f"Precision [%]: {np.array([np.round(p_i*100, 2) for p_i in precision])}",
+              f"Mean Precision: {precision.mean()*100:.2f} %",
               f"Recall [%]: {np.array([np.round(r_i*100, 2) for r_i in  recall])}",
+              f"Mean Recall: {recall.mean()*100:.2f} %",
               sep='\n')
