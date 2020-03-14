@@ -101,18 +101,18 @@ class Knn(Classifier):
         """
         return self._Kmax
 
-    def train(self, train: np.ndarray, train_labels: np.ndarray,
+    def train(self, train_set: np.ndarray, train_labels: np.ndarray,
               verbose: bool = True, findBestKWithCrossValidation: bool = False) -> tuple:
-        self.setTrainData(train, train_labels)
+        self.setTrainData(train_set, train_labels)
 
         if findBestKWithCrossValidation:
-            kToacc: dict = {k: self.crossValidation(train, train_labels, cv=5, k=k)
+            kToacc: dict = {k: self.crossValidation(train_set, train_labels, cv=5, k=k)
                             for k in range(self._Kmin, self._Kmax)}
             self.K = max(kToacc, key=kToacc.get)
 
-        displayArgs = {"dataSize": len(train), "title": "Train results", "preMessage": f"Chosen K: {self.K} \n"}
+        displayArgs = {"dataSize": len(train_set), "title": "Train results", "preMessage": f"Chosen K: {self.K} \n"}
 
-        return self.test(train, train_labels, verbose, displayArgs)
+        return self.test(train_set, train_labels, verbose, displayArgs)
 
     def predict(self, example, label) -> (int, bool):
         """
