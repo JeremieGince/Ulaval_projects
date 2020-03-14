@@ -1,8 +1,22 @@
 import numpy as np
 from math import pi, exp
 
+
 def euclidean_distance(vector0: np.ndarray, vector1: np.ndarray) -> float:
     return np.sqrt(np.sum((vector1-vector0)**2))
+
+
+def weighted_euclidean_distance(vector0: np.ndarray, vector1: np.ndarray, **kwargs) -> float:
+    weights: np.ndarray = kwargs.get("weights", np.ones(np.shape(vector0)))
+    return np.sqrt(np.sum(weights*(vector1 - vector0) ** 2))
+
+
+def manhattan_distance(vector0: np.ndarray, vector1: np.ndarray) -> float:
+    return sum(np.abs(vector1-vector0))
+
+
+def chebyshev_distance(vector0: np.ndarray, vector1: np.ndarray) -> float:
+    return np.max(np.abs(vector1-vector0))
 
 
 class MapHashVecLabel:
