@@ -198,7 +198,7 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.9
+    train_ratio: float = 0.10
     findBestKWithCrossValidation: bool = True
 
     print(f"Train ratio: {train_ratio}")

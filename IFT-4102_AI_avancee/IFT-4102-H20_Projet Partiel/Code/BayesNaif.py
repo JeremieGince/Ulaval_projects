@@ -200,7 +200,7 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.05
+    train_ratio: float = 0.90
 
     print(f"Train ratio: {train_ratio}")
     print("\n")
