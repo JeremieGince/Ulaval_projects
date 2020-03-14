@@ -37,4 +37,9 @@ Le code serait ainsi plus simple et la facilité de lecture du code serait amél
 - Pour ce qui est du Knn, nous avons eu beaucoup de difficulté à trouver un moyen afin de préentraîner le modèle dans l'optique 
 d'optimiser la prédiction du Knn. Malheureusement, après beaucoup de recherche sur internet, aucune méthode satifesant nos exigences
 a été trouvé dans un délais raisonnable. Une telle méthode nous aurait permit d'effectuer un préentraînement sur les données et ainsi
-accélérer la prédiction de notre Knn qui est plutôt lent à ce niveau. 
+accélérer la prédiction de notre Knn qui est plutôt lent à ce niveau.
+
+De plus, nous avons trouver avec l'article suivant:
+https://sci2s.ugr.es/keel/pdf/algorithm/articulo/2006-Paredes-IEEETPAMI.pdf
+qu'il existe une façon d'améliorer notre métric de distance en utilisant une distance pondéré et que nous entraînons
+les poids de cette distance dans notre méthode train avec la technique décrite dans l'article.
