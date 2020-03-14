@@ -112,11 +112,12 @@ class Knn(Classifier):
               afin de trouver les poids idéaux selon l'article suivant:
               https://sci2s.ugr.es/keel/pdf/algorithm/articulo/2006-Paredes-IEEETPAMI.pdf
 
-        :param train_set:
-        :param train_labels:
-        :param verbose:
-        :param findBestKWithCrossValidation:
-        :return:
+        :param train_set: Ensemble de données d'entraînement (np.ndarray)
+        :param train_labels: Ensembles des étiquettes des données d'entraînement (np.ndarray)
+        :param verbose: Vrai si nous voulons afficher certaines statistiques, Faux sinon (boo;)
+        :param findBestKWithCrossValidation: Vrai si on veux utiliser la cross validation pour trouver le K optimal,
+        Faux sinon (bool)
+        :return: confusionMatrix, accuracy, precision, recall (tuple)
         """
         self.setTrainData(train_set, train_labels)
 
@@ -133,11 +134,12 @@ class Knn(Classifier):
         """
         Perform the classification of the current current example.
 
+        Référence: https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
+
         :param example: data sample (np.ndarray)
         :param label: the class of this example. (int)
         :return: predicted class of the sample, predicted class == label
         """
-        # https://fr.wikipedia.org/wiki/Recherche_des_plus_proches_voisins
         return self.naivePrediction(example, label)
 
     def naivePrediction(self, example, label):
