@@ -1,4 +1,4 @@
-À ouvrir avec Notepad afin que le rendu de ce fichier soit conforme avec les exigence.
+À ouvrir avec Notepad afin que le rendu de ce fichier soit conforme avec les exigences.
 
 Description des classes
 
