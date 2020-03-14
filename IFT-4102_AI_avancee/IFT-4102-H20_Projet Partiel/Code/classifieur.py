@@ -77,6 +77,12 @@ class Classifier:
         return confusionMatrix, accuracy, precision, recall
 
     def getAccuracy(self, test_set: np.ndarray, test_labels: np.ndarray) -> float:
+        """
+        Retourne le ratio entre le nombre d'instanbce bien classifier et le nombre d'instance total.
+        :param test_set: L'ensemble de données test (np.ndarray)
+        :param test_labels: L'ensemble des étiquettes des données test (np.ndarray)
+        :return: L'accuracy :rtype: float
+        """
         accuracy: float = 0
         for idx, exemple in enumerate(test_set):
             prediction, check = self.predict(exemple, test_labels[idx])
@@ -84,7 +90,14 @@ class Classifier:
         return 100 * (accuracy / len(test_set))
 
     def getConfusionMatrix(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
-        # https://en.wikipedia.org/wiki/Confusion_matrix
+        """
+        Retourn la matrice de confusion sur l'ensemble des données test.
+        Reference: https://en.wikipedia.org/wiki/Confusion_matrix
+
+        :param test_set: L'ensemble de données test (np.ndarray)
+        :param test_labels: L'ensemble des étiquettes des données test (np.ndarray)
+        :return: La matrice de confusion :rtype: np.ndarray
+        """
         labels: list = sorted(list(set(test_labels)))
         labelsToCountclassification: dict = {lbl: [0 for _ in labels] for lbl in labels}
         for idx, example in enumerate(test_set):
@@ -94,27 +107,33 @@ class Classifier:
         confusionMatrix: np.ndarray = np.array([labelsToCountclassification[lbl] for lbl in labels]).transpose()
         return confusionMatrix
 
-    def getPrecision(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.float:
-        # https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+    def getPrecision(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
+        """
+
+        Référence: https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
+        :param test_set: L'ensemble de données test (np.ndarray)
+        :param test_labels: L'ensemble des étiquettes des données test (np.ndarray)
+        :return:
+        """
         confusionMatrix: np.ndarray = self.getConfusionMatrix(test_set, test_labels)
         precisionVector: np.ndarray = np.array([vector[idx] / np.sum(vector)
                                                 for idx, vector in enumerate(confusionMatrix)])
-        return precisionVector.mean()
+        return precisionVector
 
-    def getRecall(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.float:
+    def getRecall(self, test_set: np.ndarray, test_labels: np.ndarray) -> np.ndarray:
         # https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
         confusionMatrix_T: np.ndarray = self.getConfusionMatrix(test_set, test_labels).transpose()
         recallVector: np.ndarray = np.array([vector[idx] / np.sum(vector)
                                              for idx, vector in enumerate(confusionMatrix_T)])
-        return recallVector.mean()
+        return recallVector
 
-    def displayStats(self, confusionMatrix: np.ndarray = None, accuracy: float = None, precision: float = None,
-                     recall: float = None, dataSize: int = None, title: str = "", preMessage: str = ""):
+    def displayStats(self, confusionMatrix: np.ndarray = None, accuracy: float = None, precision: np.ndarray = None,
+                     recall: np.ndarray = None, dataSize: int = None, title: str = "", preMessage: str = ""):
         print((f"\n {title}:" if title else ""),
               f"Data set size: {dataSize}",
               (f"{preMessage}" if preMessage else ""),
               f"Confusion Matrix: \n {confusionMatrix}",
               f"Accuracy: {accuracy:.2f} %",
-              f"Precision: {precision:.5f}",
-              f"Recall: {recall:.5f}",
+              f"Precision [%]: {np.array([np.round(p_i*100, 2) for p_i in precision])}",
+              f"Recall [%]: {np.array([np.round(r_i*100, 2) for r_i in  recall])}",
               sep='\n')
