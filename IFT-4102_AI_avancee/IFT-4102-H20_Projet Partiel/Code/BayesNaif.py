@@ -165,7 +165,7 @@ class NbcGaussian(Nbc):
                 self.probability_of_each_feature[ids].append(GaussianDistribution(average, var))
 
         print("Probability of each class")
-        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %s\n"))
+        print(ReturnDictionnaryAsProbabilities(self.probability_of_each_class, "P(%s) = %.3f\n"))
         print("Probability of each feature")
         DisplayTrainResultGaussian(self.probability_of_each_feature)
 
