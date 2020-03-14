@@ -111,7 +111,7 @@ class Knn(Classifier):
               pondéré comme la "util.weighted_euclidean_distance" et que nous utilisons la méthode train
               afin de trouver les poids idéaux selon l'article suivant:
               https://sci2s.ugr.es/keel/pdf/algorithm/articulo/2006-Paredes-IEEETPAMI.pdf
-              
+
         :param train_set:
         :param train_labels:
         :param verbose:
