@@ -5,17 +5,6 @@ import util
 from BayesNaif import Nbc, NbcGaussian
 from Knn import Knn
 
-"""
-C'est le fichier main duquel nous allons tout lancer
-Vous allez dire en commentaire c'est quoi les paramètres que vous avez utilisés
-En gros, vous allez :
-1- Initialiser votre classifieur avec ses paramètres
-2- Charger les datasets
-3- Entrainer votre classifieur
-4- Le tester
-
-"""
-
 if __name__ == '__main__':
     ###################################################################################################################
     #  Partie 1 - Knn
@@ -33,6 +22,8 @@ if __name__ == '__main__':
     print(f"Iris dataset classification: \n")
     startTime = time.time()
 
+    #  Entrainement sur l'ensemble de données Iris
+
     iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(knn_train_ratio)
     iris_knn = Knn(distance_func=distanceFunc)
     iris_knn.train(iris_train, iris_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
@@ -44,6 +35,8 @@ if __name__ == '__main__':
     print(f"Congressional dataset classification: \n")
     startTime = time.time()
 
+    #  Entrainement sur l'ensemble de données Congressional
+
     cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(
         knn_train_ratio)
     cong_knn = Knn(distance_func=distanceFunc)
@@ -51,6 +44,8 @@ if __name__ == '__main__':
     cong_knn.test(cong_test, cong_test_labels)
 
     print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+
+    #  Entrainement sur les ensembles de données Monks
 
     print('-' * 175)
     for i in range(3):
@@ -82,6 +77,8 @@ if __name__ == '__main__':
     iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(nbc_train_ratio)
     iris_knn = NbcGaussian()
 
+    #  Entrainement sur l'ensemble de données Iris
+
     iris_knn.train(iris_train, iris_train_labels)
     iris_knn.test(iris_test, iris_test_labels)
 
@@ -91,6 +88,8 @@ if __name__ == '__main__':
     print(f"Congressional dataset classification: \n")
     startTime = time.time()
 
+    #  Entrainement sur l'ensemble de données Congressional
+
     cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(
         nbc_train_ratio)
     cong_knn = Nbc()
@@ -98,6 +97,8 @@ if __name__ == '__main__':
     cong_knn.test(cong_test, cong_test_labels)
 
     print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+
+    #  Entrainement sur les ensembles de données Monks
 
     print('-' * 175)
     for i in range(3):
