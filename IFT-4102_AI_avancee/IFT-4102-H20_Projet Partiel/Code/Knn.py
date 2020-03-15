@@ -190,16 +190,16 @@ class Knn(Classifier):
             train_i = list(train_set)
             train_labels_i = list(train_labels)
             if i < cv - 1:
-                crossSet = list(train_i[i * di:(i + 1) * di])
-                del train_i[i * di:(i + 1) * di]
+                crossSet = list(train_i[i * di:(i + 1) * di])  # ensemble de test courant
+                del train_i[i * di:(i + 1) * di] # On retire l'ensemble de test de l'ensemble d'entrainement courant
 
-                crossSet_labels = list(train_labels_i[i * di:(i + 1) * di])
+                crossSet_labels = list(train_labels_i[i * di:(i + 1) * di])  # ensemble d'étiquettes de test courant
                 del train_labels_i[i * di:(i + 1) * di]
             else:
-                crossSet = list(train_i[i * di:])
-                del train_i[i * di:]
+                crossSet = list(train_i[i * di:])  # ensemble de test courant
+                del train_i[i * di:]  # On retire l'ensemble de test de l'ensemble d'entrainement courant
 
-                crossSet_labels = list(train_labels_i[i * di:])
+                crossSet_labels = list(train_labels_i[i * di:])  # ensemble d'étiquettes de test courant
                 del train_labels_i[i * di:]
 
             knn = Knn()
@@ -215,9 +215,9 @@ if __name__ == '__main__':
     import load_datasets
     import time
 
-    train_ratio: float = 0.90
+    train_ratio: float = 0.9
     findBestKWithCrossValidation: bool = True
-    distanceFunc = util.chebyshev_distance
+    distanceFunc = util.euclidean_distance
 
     print(f"Train ratio: {train_ratio}")
     print(f"findBestKWithCrossValidation: {findBestKWithCrossValidation}")
@@ -246,6 +246,7 @@ if __name__ == '__main__':
     print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     print('-' * 175)
+    findBestKWithCrossValidation = True
     for i in range(3):
         print(f"Monks({i+1}) dataset classification: \n")
         startTime = time.time()
@@ -258,4 +259,5 @@ if __name__ == '__main__':
         print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
         print('-' * 175)
+
 
