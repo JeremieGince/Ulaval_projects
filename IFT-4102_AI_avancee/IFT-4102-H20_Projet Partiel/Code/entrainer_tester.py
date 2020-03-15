@@ -29,7 +29,7 @@ if __name__ == '__main__':
     iris_knn.train(iris_train, iris_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     iris_knn.test(iris_test, iris_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     print('-' * 175)
     print(f"Congressional dataset classification: \n")
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     cong_knn.train(cong_train, cong_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
     cong_knn.test(cong_test, cong_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     #  Entrainement sur les ensembles de données Monks
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         monks_knn.train(monks_train, monks_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
         monks_knn.test(monks_test, monks_test_labels)
 
-        print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+        print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
         print('-' * 175)
 
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     #  Partie 2 - Bayes Naif
     ###################################################################################################################
 
-    nbc_train_ratio: float = 0.4
+    nbc_train_ratio: float = 0.6
 
     print(f"Bayes Naif Train ratio: {nbc_train_ratio}")
     print("\n")
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     iris_knn.train(iris_train, iris_train_labels)
     iris_knn.test(iris_test, iris_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     print('-' * 175)
     print(f"Congressional dataset classification: \n")
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     cong_knn.train(cong_train, cong_train_labels)
     cong_knn.test(cong_test, cong_test_labels)
 
-    print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+    print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
     #  Entrainement sur les ensembles de données Monks
 
@@ -110,6 +110,6 @@ if __name__ == '__main__':
         monks_knn.train(monks_train, monks_train_labels)
         monks_knn.test(monks_test, monks_test_labels)
 
-        print(f"\n --- Elapse time: {time.time() - startTime:.2f} s --- \n")
+        print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
         print('-' * 175)
