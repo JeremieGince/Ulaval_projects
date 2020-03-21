@@ -113,7 +113,7 @@ class Classifier:
 
                          (nombre de prediction correctement attribué à la classe i)
         precision_i = -------------------------------------------------------------------
-                              (ombre d'étiquettes attribué à la classe i)
+                              (nombre d'étiquettes attribué à la classe i)
 
         Référence: https://fr.wikipedia.org/wiki/Pr%C3%A9cision_et_rappel
 

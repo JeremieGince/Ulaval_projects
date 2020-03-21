@@ -219,6 +219,8 @@ if __name__ == '__main__':
     findBestKWithCrossValidation: bool = True
     distanceFunc = util.euclidean_distance
 
+    confusionMatrixList: list = list()
+
     print(f"Train ratio: {train_ratio}")
     print(f"findBestKWithCrossValidation: {findBestKWithCrossValidation}")
     print("\n")
@@ -230,7 +232,8 @@ if __name__ == '__main__':
     iris_train, iris_train_labels, iris_test, iris_test_labels = load_datasets.load_iris_dataset(train_ratio)
     iris_knn = Knn(distance_func=distanceFunc)
     iris_knn.train(iris_train, iris_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-    iris_knn.test(iris_test, iris_test_labels)
+    cm, _, _, _ = iris_knn.test(iris_test, iris_test_labels)
+    confusionMatrixList.append(cm)
 
     print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
@@ -241,7 +244,8 @@ if __name__ == '__main__':
     cong_train, cong_train_labels, cong_test, cong_test_labels = load_datasets.load_congressional_dataset(train_ratio)
     cong_knn = Knn(distance_func=distanceFunc)
     cong_knn.train(cong_train, cong_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-    cong_knn.test(cong_test, cong_test_labels)
+    cm, _, _, _ = cong_knn.test(cong_test, cong_test_labels)
+    confusionMatrixList.append(cm)
 
     print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
@@ -254,10 +258,15 @@ if __name__ == '__main__':
         monks_train, monks_train_labels, monks_test, monks_test_labels = load_datasets.load_monks_dataset(i+1)
         monks_knn = Knn(distance_func=distanceFunc)
         monks_knn.train(monks_train, monks_train_labels, findBestKWithCrossValidation=findBestKWithCrossValidation)
-        monks_knn.test(monks_test, monks_test_labels)
+        cm, _, _, _ = monks_knn.test(monks_test, monks_test_labels)
+        confusionMatrixList.append(cm)
 
         print(f"\n --- Elapse time: {1_000*(time.time() - startTime):.2f} ms --- \n")
 
         print('-' * 175)
 
+    Tpr, Fpr = util.computeTprFprList(confusionMatrixList)
 
+    print(Tpr, Fpr, sep='\n')
+
+    util.plotROCcurves(Tpr, Fpr, labels=["Knn"])
