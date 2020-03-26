@@ -116,3 +116,28 @@ def plotROCcurves(Tpr: np.ndarray, Fpr: np.ndarray, hmCurve: int = 1, title: str
     plt.legend()
     plt.savefig(f"{os.getcwd()}/{title}_plot.png", dpi=300)
     plt.show()
+
+
+def beta(dataset: (np.ndarray, np.ndarray, np.ndarray, np.ndarray), **kwargs) -> float:
+    """
+    Compute the normalised Shannon entropy for the dataset.
+    :param dataset: a dataset in the form (train_data, train_labels, test_data, test_labels)
+    :return: beta factor :rtype: float
+    """
+    (train_data, train_labels, test_data, test_labels) = dataset
+    labels_container: list = list(train_labels)+list(test_labels)
+    cls_set = set(labels_container)
+
+    n: int = len(train_data) + len(test_data)
+    k = len(cls_set)
+    c = [labels_container.count(cls) for cls in cls_set]
+    H = 0.0
+    normalised_coeff = -1 / np.log(k)
+    for i in range(k):
+        normalised_count = c[i]/n
+        H += normalised_count * np.log(normalised_count)
+    bta = normalised_coeff * H
+
+    if kwargs.get("verbose", False):
+        print(f"n: {n}, k: {k}, c: {c}, H: {-H}, beta: {bta}")
+    return bta
