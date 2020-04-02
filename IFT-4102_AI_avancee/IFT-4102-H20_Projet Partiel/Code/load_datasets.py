@@ -182,6 +182,8 @@ def extract_raw_data(filename: str, class_index: int = -1, conversion_labels=Non
 
 
 if __name__ == '__main__':
+    import util
+
     train, train_labels, test, test_labels = load_iris_dataset(0.5)
     print(f"Iris dataset shape: {len(train)+len(test)}")
     congressional_dataset = load_congressional_dataset(0.5)
@@ -189,3 +191,14 @@ if __name__ == '__main__':
     for i in range(1, 4):
         monksi_dataset = load_monks_dataset(i)
         print(f"Monks ({i}) dataset shape: {len(monksi_dataset[0]) + len(monksi_dataset[2])}")
+
+    datasets = {
+        "Iris": load_iris_dataset(0.5),
+        "Congressional": load_congressional_dataset(0.5)
+    }
+    for i in range(1, 4):
+        datasets[f"Monks ({i})"] = load_monks_dataset(i)
+
+    betas = {d: util.beta(v, verbose=True) for d, v in datasets.items()}
+    print(betas)
+
